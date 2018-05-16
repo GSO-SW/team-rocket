@@ -1,0 +1,9 @@
+PORTAL 2D:
+
++bewegung
++hitbox-(klasse/abstract/konzept)
++"physik"
++map-datei-format
++steuerung
++optionen(einstellungen)
++player-animation
