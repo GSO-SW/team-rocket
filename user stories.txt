@@ -1,0 +1,31 @@
+Links und Rechts Bewegung
+Der User soll sich nach links und rechts bewegen können, ohne dass er durch Wände geht
+
+Springen, Fallen
+Der User soll springen und fallen können, ohne durch Böden und Decken zu gehen 
+
+Portale schießen
+Der User soll mit seinem Spielcharakter Portale an Oberflächen schießen können in Projektilform.
+
+Durch Portale gehen
+Der User soll mit seinem Spielcharakter durch ein Portal gehen und durch das andere wieder rauskommen.
+
+In-game Buttons
+Es sollen im Spiel Buttons geben, die druckempfindlich auf andere Obejekte reagieren.
+
+Sterben
+Der Spieler soll im Spiel durch entweder Schaden oder runterfallen sterben können.
+
+Tragbare Objekte
+Der Spieler kann gewisse Objekte mit sich herumtragen.
+
+Animationen
+Der Spieler soll über Animationen verfügen, z.B. beim Gehen.
+
+Level
+Der Spieler soll mehrere Level zur Verfügung haben.
+
+-----------------------------------------------------
+
+32*32
+
