@@ -15,11 +15,13 @@ namespace team_rocket
         Rectangle rectangle;
         bool hitboxFlag;
 
-        public Tiles()
+        public Tiles(int x, int y)
         {
             rectangle = new Rectangle();
             rectangle.Height = 32;
             rectangle.Width = 32;
+            rectangle.X = x;
+            rectangle.Y = y;
         }
 
         /// <summary>
@@ -42,6 +44,10 @@ namespace team_rocket
             get
             {
                 return hitboxFlag;
+            }
+            set
+            {
+                hitboxFlag = value;
             }
         }
     }
