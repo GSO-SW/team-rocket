@@ -10,7 +10,7 @@ namespace team_rocket
 	/// <summary>
 	/// This class resembles the tiles ingame, which serves as walls and platforms for the player.
 	/// </summary>
-	class Tiles
+	class Tile
 	{
 		private Rectangle rect;
 		private bool hitboxFlag;
@@ -50,7 +50,7 @@ namespace team_rocket
 		/// </summary>
 		/// <param name="x"></param>
 		/// <param name="y"></param>
-		public Tiles(int x, int y, int imageID)
+		public Tile(int x, int y, int imageID)
 		{
 			rect = new Rectangle();
 			rect.Height = 32;
