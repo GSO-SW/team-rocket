@@ -12,7 +12,7 @@ namespace team_rocket
 	/// </summary>
 	class Tiles
 	{
-		private Rectangle rectangle;
+		private Rectangle rect;
 		private bool hitboxFlag;
 		private int imageID;
 
@@ -21,9 +21,9 @@ namespace team_rocket
 		/// Returns the location of the upper left and right corner of the rectangle
 		/// as a Point-Structure.
 		/// </summary>
-		public Point Position
+		public Rectangle Rect
 		{
-			get { return rectangle.Location; }
+			get { return rect; }
 		}
 
 		/// <summary>
@@ -52,11 +52,11 @@ namespace team_rocket
 		/// <param name="y"></param>
 		public Tiles(int x, int y, int imageID)
 		{
-			rectangle = new Rectangle();
-			rectangle.Height = 32;
-			rectangle.Width = 32;
-			rectangle.X = x;
-			rectangle.Y = y;
+			rect = new Rectangle();
+			rect.Height = 32;
+			rect.Width = 32;
+			rect.X = x;
+			rect.Y = y;
 			ImageID = imageID;
 		}
 	}

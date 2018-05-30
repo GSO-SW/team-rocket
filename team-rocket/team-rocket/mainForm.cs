@@ -13,7 +13,8 @@ namespace team_rocket
     public partial class main : Form
     {
         Timer updateGraphicsTimer;
-        Tiles[] tilesArray;
+        Tile[] tilesArray;
+		Bitmap[] bitmapArray;
 
         public main()
         {
@@ -30,12 +31,17 @@ namespace team_rocket
             updateGraphicsTimer.Tick += UpdateGraphichsTimer_Tick;
             updateGraphicsTimer.Start();
 
-            tilesArray = new Tiles[768];
+			bitmapArray = new Bitmap[1];
+			bitmapArray[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
+
+            tilesArray = new Tile[768];
+			int counter = 0;
             for (int i = 0; i < 24; i++)
             {
-                for (int ii = 0; ii < 32; ii++)
+                for (int j = 0; j < 32; j++)
                 {
-
+					tilesArray[counter] = new Tile(j * 32, i * 32, 0);
+					counter++;
                 }
             }
         }
@@ -58,8 +64,10 @@ namespace team_rocket
         {
             base.OnPaint(e);
 
-
-            
+			foreach(Tile item in tilesArray)
+			{
+				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+			}
         }
     }
 }
