@@ -13,6 +13,7 @@ namespace team_rocket
     public partial class main : Form
     {
         Timer updateGraphicsTimer;
+        Tiles[] tilesArray;
 
         public main()
         {
@@ -28,6 +29,15 @@ namespace team_rocket
             updateGraphicsTimer.Interval = 20;
             updateGraphicsTimer.Tick += UpdateGraphichsTimer_Tick;
             updateGraphicsTimer.Start();
+
+            tilesArray = new Tiles[768];
+            for (int i = 0; i < 24; i++)
+            {
+                for (int ii = 0; ii < 32; ii++)
+                {
+
+                }
+            }
         }
 
         /// <summary>
@@ -49,13 +59,7 @@ namespace team_rocket
             base.OnPaint(e);
 
 
-            for (int i = 0; i < 24; i++)
-            {
-                for (int ii = 0; ii < 32; ii++)
-                {
-                    e.Graphics.DrawRectangle(Pens.Black, new Rectangle(ii * 32, i * 32, 32, 32));
-                }
-            }
+            
         }
     }
 }
