@@ -7,7 +7,9 @@ using System.Drawing;
 
 namespace team_rocket
 {
-    // This class resembles the tiles ingame, which serves as walls and platforms for the player.
+    /// <summary>
+    /// This class resembles the tiles ingame, which serves as walls and platforms for the player.
+    /// </summary>
     class Tiles
     {
         Rectangle rectangle;
