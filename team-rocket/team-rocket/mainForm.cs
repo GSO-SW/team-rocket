@@ -48,6 +48,7 @@ namespace team_rocket
                 }
             }
 
+			#region create a test map which has a ground height of two tiles and the rest is background
 			int[] imageIDs = new int[768];
 			for (int i = 0; i < imageIDs.Length; i++)
 			{
@@ -58,13 +59,31 @@ namespace team_rocket
 			testLevel = new Level(imageIDs);
 
 			loadLevel(testLevel);
-        }
+			#endregion
+		}
 
+		/// <summary>
+		/// Load the level to the game view.
+		/// </summary>
+		/// <param name="lvl">The level, which should be loaded.</param>
 		private void loadLevel(Level lvl)
 		{
 			for (int i = 0; i < tilesArray.Length; i++)
 			{
 				tilesArray[i].ImageID = lvl.ImageIDs[i];
+
+				switch (tilesArray[i].ImageID)
+				{
+					case 0:
+					case 1:
+						tilesArray[i].HitboxFlag = false;
+						break;
+					case 2:
+						tilesArray[i].HitboxFlag = true;
+						break;
+					default:
+						break;
+				}
 			}
 		}
 
