@@ -43,12 +43,10 @@ namespace team_rocket
             {
                 for (int j = 0; j < 32; j++)
                 {
-					tilesArray[counter] = new Tile(j * 32, i * 32, 0);
+					tilesArray[counter] = new Tile(j * 32, i * 32, 0, false);
 					counter++;
                 }
             }
-
-
 
 			int[] imageIDs = new int[768];
 			for (int i = 0; i < imageIDs.Length; i++)
