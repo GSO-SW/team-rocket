@@ -16,6 +16,7 @@ namespace team_rocket
         Tile[] tilesArray;
 		Bitmap[] bitmapArray;
 		Level testLevel;
+		Character character;
 
         public main()
         {
@@ -27,15 +28,21 @@ namespace team_rocket
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 
-            updateGraphicsTimer = new Timer();
+			#region Frame Timer
+			// The timer which determines the FPS
+			updateGraphicsTimer = new Timer();
             updateGraphicsTimer.Interval = 20;
             updateGraphicsTimer.Tick += UpdateGraphichsTimer_Tick;
             updateGraphicsTimer.Start();
+			#endregion
 
+			#region Loading Textures
+			// Here are the game sprites being loaded in
 			bitmapArray = new Bitmap[3];
 			bitmapArray[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
 			bitmapArray[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\background_1.png");
 			bitmapArray[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\ground_1.png");
+			#endregion
 
 			tilesArray = new Tile[768];
 			int counter = 0;
@@ -58,6 +65,9 @@ namespace team_rocket
 			testLevel = new Level(imageIDs);
 
 			loadLevel(testLevel);
+			// Experimental
+			character = new Character(new Point(50, 50));
+			KeyDown += new KeyEventHandler(character.MoveX);
         }
 
 		private void loadLevel(Level lvl)

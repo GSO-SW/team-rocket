@@ -9,27 +9,18 @@ namespace team_rocket
 {
 	class Character
 	{
-		private int x, y;
+		private Point location;
 		private Bitmap[] sprite;
 		private Rectangle hitbox;
 
 		#region Properties
 		/// <summary>
-		/// Sets and returns the X coordinate of the character.
+		/// Sets and returns the location of the character as a Point object.
 		/// </summary>
-		public int X
+		public Point Location
 		{
-			get { return x; }
-			set { x = value; }
-		}
-
-		/// <summary>
-		/// Sets and returns the Y coordinate of the character.
-		/// </summary>
-		public int Y
-		{
-			get { return y; }
-			set { y = value; }
+			get { return location; }
+			set { location = value; }
 		}
 
 		/// <summary>
@@ -49,12 +40,20 @@ namespace team_rocket
 		}
 		#endregion
 
-		public Character(int x, int y)
+		/// <summary>
+		/// Provides a class, which will represent the players character.
+		/// </summary>
+		/// <param name="point">Sets the initial location of the character with a Point object.</param>
+		public Character(Point point)
 		{
-			X = x;
-			Y = y;
+			location = point;
 			hitbox.Height = 64;
 			hitbox.Width = 32;
+		}
+
+		public void MoveX(object sender, System.Windows.Forms.KeyEventArgs e)
+		{
+
 		}
 	}
 }
