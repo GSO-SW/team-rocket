@@ -10,6 +10,10 @@ namespace team_rocket
 	class Level
 	{
 		private int[] imageIDs;
+		private Point startPoint;
+		private Point endPoint;
+
+		#region Properties
 		/// <summary>
 		/// An array of Integer, which represent the Images from the tiles. Orderd like the TileArray.
 		/// </summary>
@@ -19,7 +23,6 @@ namespace team_rocket
 			set { imageIDs = value; }
 		}
 
-		private Point startPoint;
 		/// <summary>
 		/// The player should spawn at this Point.
 		/// </summary>
@@ -28,7 +31,6 @@ namespace team_rocket
 			get { return startPoint; }
 		}
 
-		private Point endPoint;
 		/// <summary>
 		/// The level is completed, if the player reach this point.
 		/// </summary>
@@ -36,7 +38,7 @@ namespace team_rocket
 		{
 			get { return endPoint; }
 		}
-
+		#endregion
 
 		public Level(int[] imageIDs, Point startPoint, Point endPoint)
 		{
