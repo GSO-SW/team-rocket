@@ -15,6 +15,7 @@ namespace team_rocket
         Timer updateGraphicsTimer;
         Tile[] tilesArray;
 		Bitmap[] bitmapArray;
+		Level testLevel;
 
         public main()
         {
@@ -31,10 +32,12 @@ namespace team_rocket
             updateGraphicsTimer.Tick += UpdateGraphichsTimer_Tick;
             updateGraphicsTimer.Start();
 
-			bitmapArray = new Bitmap[1];
+			bitmapArray = new Bitmap[3];
 			bitmapArray[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
+			bitmapArray[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\background_1.png");
+			bitmapArray[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\ground_1.png");
 
-            tilesArray = new Tile[768];
+			tilesArray = new Tile[768];
 			int counter = 0;
             for (int i = 0; i < 24; i++)
             {
@@ -44,7 +47,28 @@ namespace team_rocket
 					counter++;
                 }
             }
+
+
+
+			int[] imageIDs = new int[768];
+			for (int i = 0; i < imageIDs.Length; i++)
+			{
+				imageIDs[i] = 1;
+				if (i >= 704)
+					imageIDs[i] = 2;
+			}
+			testLevel = new Level(imageIDs);
+
+			loadLevel(testLevel);
         }
+
+		private void loadLevel(Level lvl)
+		{
+			for (int i = 0; i < tilesArray.Length; i++)
+			{
+				tilesArray[i].ImageID = lvl.ImageIDs[i];
+			}
+		}
 
         /// <summary>
         /// Event-Handler for the Graphic-Update-Timer-Tick
