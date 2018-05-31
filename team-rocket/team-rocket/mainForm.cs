@@ -56,7 +56,7 @@ namespace team_rocket
 				if (i >= 704)
 					imageIDs[i] = 2;
 			}
-			testLevel = new Level(imageIDs);
+			testLevel = new Level(imageIDs, new Point(0,640), new Point(1024-32,640));
 
 			loadLevel(testLevel);
 			#endregion
