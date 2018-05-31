@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace team_rocket
 {
@@ -18,9 +19,30 @@ namespace team_rocket
 			set { imageIDs = value; }
 		}
 
-		public Level(int[] imageIDs)
+		private Point startPoint;
+		/// <summary>
+		/// The player should spawn at this Point.
+		/// </summary>
+		public Point StartPoint
+		{
+			get { return startPoint; }
+		}
+
+		private Point endPoint;
+		/// <summary>
+		/// The level is completed, if the player reach this point.
+		/// </summary>
+		public Point EndPoint
+		{
+			get { return endPoint; }
+		}
+
+
+		public Level(int[] imageIDs, Point startPoint, Point endPoint)
 		{
 			ImageIDs = imageIDs;
+			this.startPoint = startPoint;
+			this.endPoint = endPoint;
 		}
 	}
 }
