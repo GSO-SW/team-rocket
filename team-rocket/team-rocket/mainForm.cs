@@ -18,6 +18,7 @@ namespace team_rocket
 		Level testLevel;
 		Character character;
 		char key;
+		bool keyAIsPressed, keyDIsPressed;
 
         public main()
         {
@@ -29,7 +30,9 @@ namespace team_rocket
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 
-			#region Frame Timer
+			keyAIsPressed = keyDIsPressed = false;
+
+			#region Initialize Frame Timer
 			// The timer which determines the FPS
 			updateGraphicsTimer = new Timer();
             updateGraphicsTimer.Interval = 20;
@@ -45,6 +48,7 @@ namespace team_rocket
 			bitmapArray[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\ground_1.png");
 			#endregion
 
+			#region Initialize the tiles
 			tilesArray = new Tile[768];
 			int counter = 0;
             for (int i = 0; i < 24; i++)
@@ -55,7 +59,9 @@ namespace team_rocket
 					counter++;
                 }
             }
+			#endregion
 
+			#region Test Level
 			int[] imageIDs = new int[768];
 			for (int i = 0; i < imageIDs.Length; i++)
 			{
@@ -66,6 +72,7 @@ namespace team_rocket
 			testLevel = new Level(imageIDs);
 
 			loadLevel(testLevel);
+			#endregion
 
 			// Experimental
 			character = new Character(new Point(50, 50));
@@ -104,6 +111,7 @@ namespace team_rocket
 			{
 				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 			}
+			e.Graphics.FillRectangle(Brushes.Red, new Rectangle(character.Location, character.Hitbox.Size));
         }
 
 		/// <summary>
@@ -114,19 +122,10 @@ namespace team_rocket
 		public void OnTimerTick(object sender, EventArgs e)
 		{
 			// Checks if character should be moving
-			if (character.MoveXFlag)
-			{
-				switch (key)
-				{
-					case 'A':
-						character.Location = new Point(character.Location.X - 50, character.Location.Y);
-						break;
-
-					case 'D':
-						character.Location = new Point(character.Location.X + 50, character.Location.Y);
-						break;
-				}
-			}
+			if (keyAIsPressed)
+				character.Location = new Point(character.Location.X - 5, character.Location.Y);
+			if (keyDIsPressed)
+				character.Location = new Point(character.Location.X + 5, character.Location.Y);
 		}
 
 		/// <summary>
@@ -137,18 +136,11 @@ namespace team_rocket
 		public void OnKeyDown(object sender, KeyEventArgs e)
 		{
 			// The character should be moving, when either A or D is being pressed
-			switch (e.KeyCode)
-			{
-				case System.Windows.Forms.Keys.A:
-					key = 'A';
-					character.MoveXFlag = true;
-					break;
-
-				case System.Windows.Forms.Keys.D:
-					key = 'D';
-					character.MoveXFlag = true;
-					break;
-			}
+			if (e.KeyCode == Keys.A)
+				keyAIsPressed = true;
+			if (e.KeyCode == Keys.D)
+				keyDIsPressed = true;
+			
 		}
 
 		/// <summary>
@@ -159,18 +151,11 @@ namespace team_rocket
 		public void OnKeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
 		{
 			// The character should not be moving, when A or D is stopped being pressed
-			switch (e.KeyCode)
-			{
-				case System.Windows.Forms.Keys.A:
-					key = 'A';
-					character.MoveXFlag = false;
-					break;
+			if (e.KeyCode == Keys.A)
+				keyAIsPressed = false;
+			if (e.KeyCode == Keys.D)
+				keyDIsPressed = false;
 
-				case System.Windows.Forms.Keys.D:
-					key = 'D';
-					character.MoveXFlag = false;
-					break;
-			}
 		}
 	}
 }
