@@ -19,7 +19,8 @@ namespace team_rocket
 		Character character;
 		bool bTempA, bNowA;
 		bool bTempD, bNowD;
-		int velocity; //Unit px/tick
+		bool bTempSpace, bNowSpace;
+		float velocity; //Unit px/tick
 
 		public main()
 		{
@@ -31,7 +32,7 @@ namespace team_rocket
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			
-			bTempA = bNowA = bTempD = bNowD = false;
+			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
 			velocity = 5;
 
 
@@ -98,10 +99,15 @@ namespace team_rocket
 		/// <param name="e">Conatins informatin about the Event.</param>
 		private void OnTimerTick(object sender, EventArgs e)
 		{
-			character.Velocity = new Size(character.Velocity.Width, character.Velocity.Height + 1);
+			
+			if (character.Location.Y < 600)
+			{
+				character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height + 0.5f);
+			}
 			if (character.Location.Y > 600)
 			{
-				character.Velocity = new Size(character.Velocity.Width, 0);
+				character.Velocity = new SizeF(character.Velocity.Width, 0);
+				character.Location = new PointF(character.Location.X, 600);
 			}
 
 			character.Location += character.Velocity;
@@ -121,7 +127,7 @@ namespace team_rocket
 			{
 				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 			}
-			e.Graphics.FillRectangle(Brushes.Red, new Rectangle(character.Location, character.Hitbox));
+			e.Graphics.FillRectangle(Brushes.Red, new RectangleF(character.Location, character.Hitbox));
 		}
 
 		/// <summary>
@@ -141,7 +147,7 @@ namespace team_rocket
 				if (bNowA != bTempA)
 				{
 					//The code which should be executed only one time if the key is being pressed.
-					character.Velocity = new Size(character.Velocity.Width - velocity, character.Velocity.Height);
+					character.Velocity = new SizeF(character.Velocity.Width - velocity, character.Velocity.Height);
 				}
 			}
 			
@@ -151,7 +157,17 @@ namespace team_rocket
 				bNowD = true;
 				if (bNowD != bTempD)
 				{
-					character.Velocity = new Size(character.Velocity.Width + velocity, character.Velocity.Height);
+					character.Velocity = new SizeF(character.Velocity.Width + velocity, character.Velocity.Height);
+				}
+			}
+
+			if (e.KeyCode == Keys.Space) // see above
+			{
+				bTempSpace = bNowSpace;
+				bNowSpace = true;
+				if (bNowSpace != bTempSpace)
+				{
+					character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height - 20);
 				}
 			}
 		}
@@ -166,12 +182,16 @@ namespace team_rocket
 			if (e.KeyCode == Keys.A)
 			{
 				bNowA = bTempA = false; //bNowA and bTempA will be set to false because the key isn't pressed anymore.
-				character.Velocity = new Size(character.Velocity.Width + velocity, character.Velocity.Height);
+				character.Velocity = new SizeF(character.Velocity.Width + velocity, character.Velocity.Height);
 			}
 			if (e.KeyCode == Keys.D)
 			{
 				bNowD = bTempD = false;
-				character.Velocity = new Size(character.Velocity.Width - velocity, character.Velocity.Height);
+				character.Velocity = new SizeF(character.Velocity.Width - velocity, character.Velocity.Height);
+			}
+			if (e.KeyCode == Keys.Space)
+			{
+				bNowSpace = bTempSpace = false;
 			}
 		}
 	}

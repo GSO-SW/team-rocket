@@ -9,16 +9,16 @@ namespace team_rocket
 {
 	class Character
 	{
-		private Point location;
+		private PointF location;
 		private Bitmap[] sprite;
 		private Size hitbox;
-		private Size velocity;
+		private SizeF velocity;
 		
 		#region Properties
 		/// <summary>
 		/// Sets and returns the location of the character as a Point object.
 		/// </summary>
-		public Point Location
+		public PointF Location
 		{
 			get { return location; }
 			set { location = value; }
@@ -43,7 +43,7 @@ namespace team_rocket
 		/// <summary>
 		/// Returns the velocity-vector for this Character.
 		/// </summary>
-		public Size Velocity
+		public SizeF Velocity
 		{
 			get { return velocity; }
 			set { velocity = value; }
@@ -54,12 +54,12 @@ namespace team_rocket
 		/// Provides a class, which will represent the players character.
 		/// </summary>
 		/// <param name="point">Sets the initial location of the character with a Point object.</param>
-		public Character(Point point)
+		public Character(PointF point)
 		{
 			location = point;
 			hitbox.Height = 64;
 			hitbox.Width = 32;
-			velocity = new Size(0, 0);
+			velocity = new SizeF(0f, 0f);
 		}
 	}
 }
