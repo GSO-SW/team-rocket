@@ -65,10 +65,18 @@ namespace team_rocket
 			testLevel = new Level(imageIDs);
 
 			loadLevel(testLevel);
+
 			// Experimental
 			character = new Character(new Point(50, 50));
-			KeyDown += new KeyEventHandler(character.MoveX);
+			KeyDown += character.OnKeyDown_X;
+			KeyUp += character.OnKeyUp_X;
+			updateGraphicsTimer.Tick += character.OnTimerTick;
         }
+
+		private void UpdateGraphicsTimer_Tick(object sender, EventArgs e)
+		{
+			throw new NotImplementedException();
+		}
 
 		private void loadLevel(Level lvl)
 		{
