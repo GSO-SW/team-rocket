@@ -17,6 +17,7 @@ namespace team_rocket
 		Bitmap[] bitmapArray;
 		Level testLevel;
 		Character character;
+		char key;
 
         public main()
         {
@@ -68,15 +69,10 @@ namespace team_rocket
 
 			// Experimental
 			character = new Character(new Point(50, 50));
-			KeyDown += character.OnKeyDown_X;
-			KeyUp += character.OnKeyUp_X;
-			updateGraphicsTimer.Tick += character.OnTimerTick;
+			KeyDown += OnKeyDown;
+			KeyUp += OnKeyUp;
+			updateGraphicsTimer.Tick += OnTimerTick;
         }
-
-		private void UpdateGraphicsTimer_Tick(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
 
 		private void loadLevel(Level lvl)
 		{
@@ -109,5 +105,72 @@ namespace team_rocket
 				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 			}
         }
-    }
+
+		/// <summary>
+		/// Eventhandler for every frame tick in the mainForm, handles the movement in X dimension.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		public void OnTimerTick(object sender, EventArgs e)
+		{
+			// Checks if character should be moving
+			if (character.MoveXFlag)
+			{
+				switch (key)
+				{
+					case 'A':
+						character.Location = new Point(character.Location.X - 50, character.Location.Y);
+						break;
+
+					case 'D':
+						character.Location = new Point(character.Location.X + 50, character.Location.Y);
+						break;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Eventhandler whenever a random key is being pressed, handles the X dimension flag.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		public void OnKeyDown(object sender, KeyEventArgs e)
+		{
+			// The character should be moving, when either A or D is being pressed
+			switch (e.KeyCode)
+			{
+				case System.Windows.Forms.Keys.A:
+					key = 'A';
+					character.MoveXFlag = true;
+					break;
+
+				case System.Windows.Forms.Keys.D:
+					key = 'D';
+					character.MoveXFlag = true;
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Eventhandler whenever a key is being left, handles the X dimension flag.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		public void OnKeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
+		{
+			// The character should not be moving, when A or D is stopped being pressed
+			switch (e.KeyCode)
+			{
+				case System.Windows.Forms.Keys.A:
+					key = 'A';
+					character.MoveXFlag = false;
+					break;
+
+				case System.Windows.Forms.Keys.D:
+					key = 'D';
+					character.MoveXFlag = false;
+					break;
+			}
+		}
+	}
 }

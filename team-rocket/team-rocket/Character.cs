@@ -14,7 +14,6 @@ namespace team_rocket
 		private Rectangle hitbox;
 		private bool moveXFlag;
 		private bool moveYFlag;
-		private char key;
 
 		#region Properties
 		/// <summary>
@@ -70,73 +69,6 @@ namespace team_rocket
 			location = point;
 			hitbox.Height = 64;
 			hitbox.Width = 32;
-		}
-
-		/// <summary>
-		/// Eventhandler for every frame tick in the mainForm, handles the movement in X dimension.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void OnTimerTick(object sender, EventArgs e)
-		{
-			// Checks if character should be moving
-			if (MoveXFlag)
-			{
-				switch (key)
-				{
-					case 'A':
-						location.X -= 50;
-						break;
-
-					case 'D':
-						location.X += 50;
-						break;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Eventhandler whenever a key is being pressed, handles the X dimension flag.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void OnKeyDown_X(object sender, System.Windows.Forms.KeyEventArgs e)
-		{
-			// The character should be moving
-			switch(e.KeyCode)
-			{
-				case System.Windows.Forms.Keys.A:
-					key = 'A';
-					MoveXFlag = true;
-					break;
-
-				case System.Windows.Forms.Keys.D:
-					key = 'D';
-					MoveXFlag = true;
-					break;
-			}
-		}
-
-		/// <summary>
-		/// Eventhandler whenever a key is being left, handles the X dimension flag.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void OnKeyUp_X(object sender, System.Windows.Forms.KeyEventArgs e)
-		{
-			// The character should not be moving
-			switch (e.KeyCode)
-			{
-				case System.Windows.Forms.Keys.A:
-					key = 'A';
-					MoveXFlag = false;
-					break;
-
-				case System.Windows.Forms.Keys.D:
-					key = 'D';
-					MoveXFlag = false;
-					break;
-			}
 		}
 	}
 }
