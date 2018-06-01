@@ -12,8 +12,7 @@ namespace team_rocket
 		private Point location;
 		private Bitmap[] sprite;
 		private Rectangle hitbox;
-		private bool moveXFlag;
-		private bool moveYFlag;
+		private Size velocity;
 
 		#region Properties
 		/// <summary>
@@ -40,23 +39,14 @@ namespace team_rocket
 		{
 			get { return sprite; }
 		}
-
+		
 		/// <summary>
-		/// Returns and set the flag to determine, whether or not the character is moving into the X dimension.
+		/// Returns the velocity-vector for this Character.
 		/// </summary>
-		public bool MoveXFlag
+		public Size Velocity
 		{
-			get { return moveXFlag; }
-			set { moveXFlag = value; }
-		}
-
-		/// <summary>
-		/// Returns and set the flag to determine, whether or not the character is moving into the Y dimension.
-		/// </summary>
-		public bool MoveYFlag
-		{
-			get { return moveYFlag; }
-			set { moveYFlag = value; }
+			get { return velocity; }
+			set { velocity = value; }
 		}
 		#endregion
 
@@ -69,6 +59,7 @@ namespace team_rocket
 			location = point;
 			hitbox.Height = 64;
 			hitbox.Width = 32;
+			velocity = new Size(0, 0);
 		}
 	}
 }

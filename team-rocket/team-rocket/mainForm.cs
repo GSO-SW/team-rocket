@@ -17,7 +17,6 @@ namespace team_rocket
 		Bitmap[] bitmapArray;
 		Level testLevel;
 		Character character;
-		char key;
 		bool keyAIsPressed, keyDIsPressed;
 
         public main()
@@ -79,6 +78,7 @@ namespace team_rocket
 			KeyDown += OnKeyDown;
 			KeyUp += OnKeyUp;
 			updateGraphicsTimer.Tick += OnTimerTick;
+
         }
 
 		private void loadLevel(Level lvl)
@@ -126,6 +126,8 @@ namespace team_rocket
 				character.Location = new Point(character.Location.X - 5, character.Location.Y);
 			if (keyDIsPressed)
 				character.Location = new Point(character.Location.X + 5, character.Location.Y);
+
+			//character.Location += character.Velocity;
 		}
 
 		/// <summary>
