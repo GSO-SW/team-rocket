@@ -121,7 +121,7 @@ namespace team_rocket
 			{
 				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 			}
-			e.Graphics.FillRectangle(Brushes.Red, new Rectangle(character.Location, character.Hitbox.Size));
+			e.Graphics.FillRectangle(Brushes.Red, new Rectangle(character.Location, character.Hitbox));
 		}
 
 		/// <summary>

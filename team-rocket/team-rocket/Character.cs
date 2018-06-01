@@ -11,9 +11,9 @@ namespace team_rocket
 	{
 		private Point location;
 		private Bitmap[] sprite;
-		private Rectangle hitbox;
+		private Size hitbox;
 		private Size velocity;
-
+		
 		#region Properties
 		/// <summary>
 		/// Sets and returns the location of the character as a Point object.
@@ -27,7 +27,7 @@ namespace team_rocket
 		/// <summary>
 		/// Returns the hitbox of the character.
 		/// </summary>
-		public Rectangle Hitbox
+		public Size Hitbox
 		{
 			get { return hitbox; }
 		}
