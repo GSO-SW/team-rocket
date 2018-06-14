@@ -31,7 +31,7 @@ namespace team_rocket
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-			
+
 			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
 			velocity = 5;
 
@@ -73,22 +73,38 @@ namespace team_rocket
 				if (i >= 704)
 					imageIDs[i] = 2;
 			}
-			testLevel = new Level(imageIDs);
+			testLevel = new Level(imageIDs, new Point(0, 640), new Point(1024 - 32, 640));
 
 			loadLevel(testLevel);
 			#endregion
-			
+
 			character = new Character(new Point(50, 50));
 			KeyDown += OnKeyDown;
 			KeyUp += OnKeyUp;
 
 		}
 
+		/// <summary>
+		/// Load the level to the game view.
+		/// </summary>
+		/// <param name="lvl">The level, which should be loaded.</param>
 		private void loadLevel(Level lvl)
 		{
 			for (int i = 0; i < tilesArray.Length; i++)
 			{
 				tilesArray[i].ImageID = lvl.ImageIDs[i];
+				switch (tilesArray[i].ImageID)
+				{
+					case 0:
+					case 1:
+						tilesArray[i].HitboxFlag = false;
+						break;
+					case 2:
+						tilesArray[i].HitboxFlag = true;
+						break;
+					default:
+						break;
+				}
 			}
 		}
 
@@ -99,7 +115,7 @@ namespace team_rocket
 		/// <param name="e">Conatins informatin about the Event.</param>
 		private void OnTimerTick(object sender, EventArgs e)
 		{
-			
+
 			if (character.Location.Y < 600)
 			{
 				character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height + 0.5f);
@@ -141,7 +157,7 @@ namespace team_rocket
 			{
 				// bTempA saves the state (pressed or not) of the Key 'A' from the last execution of the OnKeyDown-EventHandler.
 				// bNpw A saves the state (pressed or not) of the Key 'A' at the moment.
-				bTempA = bNowA; 
+				bTempA = bNowA;
 				bNowA = true;
 				// Comparing bNowA and bTempA to detect if the key was being pressed since the last comparison.
 				if (bNowA != bTempA)
@@ -150,7 +166,7 @@ namespace team_rocket
 					character.Velocity = new SizeF(character.Velocity.Width - velocity, character.Velocity.Height);
 				}
 			}
-			
+
 			if (e.KeyCode == Keys.D) // see above
 			{
 				bTempD = bNowD;
