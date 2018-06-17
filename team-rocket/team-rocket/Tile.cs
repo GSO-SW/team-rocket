@@ -12,7 +12,7 @@ namespace team_rocket
 	/// </summary>
 	class Tile
 	{
-		private Rectangle rect;
+		private RectangleF rect;
 		private bool hitboxFlag;
 		private int imageID;
 
@@ -21,7 +21,7 @@ namespace team_rocket
 		/// Returns the location of the upper left and right corner of the rectangle
 		/// as a Point-Structure.
 		/// </summary>
-		public Rectangle Rect
+		public RectangleF Rect
 		{
 			get { return rect; }
 		}
@@ -54,11 +54,13 @@ namespace team_rocket
 		/// <param name="hitboxFlag">The Hitbox-Flag of the tile. true = Hitbox is enabled, false = Hitbox is disabled.</param>
 		public Tile(int x, int y, int imageID, bool hitboxFlag)
 		{
-			rect = new Rectangle();
-			rect.Height = 32;
-			rect.Width = 32;
-			rect.X = x;
-			rect.Y = y;
+			rect = new Rectangle
+			{
+				Height = 32,
+				Width = 32,
+				X = x,
+				Y = y
+			};
 			ImageID = imageID;
 			HitboxFlag = hitboxFlag;
 		}
