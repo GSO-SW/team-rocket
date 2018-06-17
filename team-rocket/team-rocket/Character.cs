@@ -11,8 +11,7 @@ namespace team_rocket
 	{
 		private PointF location;
 		private Bitmap[] sprite;
-		private SizeF velocity;
-		
+        
 		#region Properties
 		/// <summary>
 		/// Returns the Sprite-Array, which will represent the walking animation of the character later on.
@@ -20,15 +19,6 @@ namespace team_rocket
 		public Bitmap[] Sprite
 		{
 			get { return sprite; }
-		}
-		
-		/// <summary>
-		/// Returns the velocity-vector for this Character.
-		/// </summary>
-		public SizeF Velocity
-		{
-			get { return velocity; }
-			set { velocity = value; }
 		}
 		#endregion
 
