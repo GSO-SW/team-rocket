@@ -12,7 +12,6 @@ namespace team_rocket
 	/// </summary>
 	class Tile : GameObject
 	{
-		private Rectangle rect;
 		private bool hitboxFlag;
 		private int imageID;
 
@@ -45,11 +44,11 @@ namespace team_rocket
 		/// <param name="hitboxFlag">The Hitbox-Flag of the tile. true = Hitbox is enabled, false = Hitbox is disabled.</param>
 		public Tile(int x, int y, int imageID, bool hitboxFlag)
 		{
-			rect = new Rectangle();
-			rect.Height = 32;
-			rect.Width = 32;
-			rect.X = x;
-			rect.Y = y;
+			Hitbox = new Rectangle();
+			hitbox.Height = 32;
+			hitbox.Width = 32;
+			hitbox.X = x;
+			hitbox.Y = y;
 			ImageID = imageID;
 			HitboxFlag = hitboxFlag;
             Movable = false;

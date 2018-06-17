@@ -9,7 +9,6 @@ namespace team_rocket
 {
 	class Character : GameObject
 	{
-		private PointF location;
 		private Bitmap[] sprite;
         
 		#region Properties
@@ -28,10 +27,10 @@ namespace team_rocket
 		/// <param name="point">Sets the initial location of the character with a Point object.</param>
 		public Character(PointF point)
 		{
-			location = point;
+			Location = point;
 			hitbox.Height = 64;
 			hitbox.Width = 32;
-			velocity = new SizeF(0f, 0f);
+			Velocity = new SizeF(0f, 0f);
             Movable = true;
 		}
 	}
