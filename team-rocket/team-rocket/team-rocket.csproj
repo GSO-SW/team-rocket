@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Character.cs" />
+    <Compile Include="GameObject.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="mainForm.cs">
       <SubType>Form</SubType>

@@ -141,9 +141,9 @@ namespace team_rocket
 
 			foreach (Tile item in tilesArray)
 			{
-				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Hitbox.Location);
 			}
-			e.Graphics.FillRectangle(Brushes.Red, new RectangleF(character.Location, character.Hitbox));
+			e.Graphics.FillRectangle(Brushes.Red, new RectangleF(character.Location, character.Hitbox.Size));
 		}
 
 		/// <summary>
