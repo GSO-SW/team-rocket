@@ -147,45 +147,44 @@ namespace team_rocket
 
 			RectangleF futurePlayer = new RectangleF(player.Location + velocity,player.Size);
 
-			List<int> neededTiles = new List<int>();
-			int a = Convert.ToInt32(player.Y + (Math.Round(player.X / 32)));
-			neededTiles.Add(a - 33);
-			neededTiles.Add(a - 32);
-			neededTiles.Add(a - 31);
-			neededTiles.Add(a - 1);
-			neededTiles.Add(a);
-			neededTiles.Add(a + 1);
-			neededTiles.Add(a + 31);
-			neededTiles.Add(a + 32);
-			neededTiles.Add(a + 33);
-			neededTiles.Add(a + 63);
-			neededTiles.Add(a + 64);
-			neededTiles.Add(a + 65);
+			#region
+			/*	List<int> neededTiles = new List<int>();
+				int a = Convert.ToInt32(player.Y + (Math.Round(player.X / 32)));
+				neededTiles.Add(a - 33);
+				neededTiles.Add(a - 32);
+				neededTiles.Add(a - 31);
+				neededTiles.Add(a - 1);
+				neededTiles.Add(a);
+				neededTiles.Add(a + 1);
+				neededTiles.Add(a + 31);
+				neededTiles.Add(a + 32);
+				neededTiles.Add(a + 33);
+				neededTiles.Add(a + 63);
+				neededTiles.Add(a + 64);
+				neededTiles.Add(a + 65);
 
-			/*   Index positions
-			 *   0  1  2
-			 *   3  4  5
-			 *   6  7  8
-			 *   9  10 11
-			 */
+				/*   Index positions
+				 *   0  1  2
+				 *   3  4  5
+				 *   6  7  8
+				 *   9  10 11
 
-			for (int i = 0; i < neededTiles.Count; i++)
-			{
-				if (tilesArray[neededTiles[i]].HitboxFlag && tilesArray[neededTiles[i]].Rect.IntersectsWith(futurePlayer))
+
+				for (int i = 0; i < neededTiles.Count; i++)
 				{
-					if(i == 10)
+					if (tilesArray[neededTiles[i]].HitboxFlag && tilesArray[neededTiles[i]].Rect.IntersectsWith(futurePlayer))
 					{
-						if (velocity.Height > 0)
-							velocity.Height = 0;
+						if(i == 10)
+						{
+							if (velocity.Height > 0)
+								velocity.Height = 0;
+						}
 					}
 				}
-			}
+				*/
+			#endregion
 
-			#region 
-
-
-			/*
-			ist<int> collidedTileIndex = new List<int>();
+			List<int> collidedTileIndex = new List<int>();
 			List<int> futureCollidedTileIndex = new List<int>();int tempX = -1;
 			bool sameX = true;
 			int tempY = -1;
@@ -201,20 +200,17 @@ namespace team_rocket
 					}
 					if (tilesArray[i].Rect.IntersectsWith(futurePlayer))
 					{
-						//futureCollidedTileIndex.Add(i);
+						futureCollidedTileIndex.Add(i);
 
-						if (tempY == tilesArray[i].Rect.Y)
+						//if (tempY == tilesArray[i].Rect.Y)
 						{
 
 						}
 
 					}
 				}
-			}*/
-			#endregion
+			}
 
-			#region
-			/*
 			//foreach (int item in futureCollidedTileIndex)
 			if (futureCollidedTileIndex.Count != 0)
 			{
@@ -224,7 +220,7 @@ namespace team_rocket
 					//Oberkante der kachel muss betrachtet werden
 					//velocity.Height = tilesArray[item].Rect.Location.Y - (charRectF.Location.Y + charRectF.Size.Height);
 
-					velocity.Height = tilesArray[item].Rect.Location.Y - (charRectF.Location.Y + charRectF.Size.Height);
+					velocity.Height = tilesArray[item].Rect.Location.Y - (player.Location.Y + player.Size.Height);
 				}
 				else if (velocity.Height < 0) //Meaning jumping
 				{
@@ -243,8 +239,6 @@ namespace team_rocket
 					//velocity.Width = tilesArray[item].Rect.Location.X - (charRectF.Location.X + charRectF.Size.Width);
 				}
 			}
-			*/
-			#endregion
 
 			player.Location += velocity;
 			character.Velocity = velocity;
