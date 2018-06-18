@@ -15,6 +15,7 @@ namespace team_rocket
         protected bool movable;
         protected RectangleF hitbox;
         protected SizeF velocity;
+        protected bool hitboxFlag;
 
         #region Properties
         /// <summary>
@@ -51,6 +52,15 @@ namespace team_rocket
         {
             get { return velocity; }
             set { velocity = value; }
+        }
+
+        /// <summary>
+		/// Flag to determine, whether or not the tile has a hitbox.
+		/// </summary>
+        virtual public bool HitboxFlag
+        {
+            get { return hitboxFlag; }
+            set { hitboxFlag = value; }
         }
         #endregion
     }

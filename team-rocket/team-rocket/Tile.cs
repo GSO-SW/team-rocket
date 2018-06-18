@@ -12,19 +12,9 @@ namespace team_rocket
 	/// </summary>
 	class Tile : GameObject
 	{
-		private bool hitboxFlag;
 		private int imageID;
 
 		#region Properties definition
-		/// <summary>
-		/// Flag to determine, whether or not the tile has a hitbox.
-		/// </summary>
-		public bool HitboxFlag
-		{
-			get { return hitboxFlag; }
-			set { hitboxFlag = value; }
-		}
-
 		/// <summary>
 		/// 
 		/// </summary>
