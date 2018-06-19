@@ -14,8 +14,9 @@ namespace team_rocket
 	public partial class main : Form
 	{
 		/// BUGS:
-		/// 
-		/// -jumping is spamable
+		/// - when the player falls from special heights, the player does a little jump after landing cause by "glitching" into the ground
+		/// - when the player hits a tile from the side and is a little bit under the upper edge, he will bounch up
+		/// - jumping is spamable
 
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
@@ -36,7 +37,7 @@ namespace team_rocket
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-			
+
 			ClientSize = new Size(1024, 768); //32*32 | 32*24
 			#endregion
 
@@ -168,12 +169,12 @@ namespace team_rocket
 			float heightBorder = -1;
 			float widthBorder = -1;
 
-			
+
 			foreach (int i in futureCollidedTileIndex)
 			{
 				// detecting in which direction the future hitted tile is
 				Point p = Point.Subtract(new Point(Convert.ToInt32(tilesArray[i].Rect.X / 32), Convert.ToInt32(tilesArray[i].Rect.Y / 32)), (Size)playerTile);
-				
+
 				if (p.X == -1 || p.X == 0 || p.X == 1) //If the tile is above or under the player
 				{
 					if (p.Y == 2) //under the player
@@ -181,7 +182,7 @@ namespace team_rocket
 					else if (p.Y == -1) // above the player
 						heightBorder = tilesArray[i].Rect.Y + tilesArray[i].Rect.Height; //set the height border at the bottom edge of the tile
 				}
-				
+
 				if (p.Y == 0 || p.Y == 1) //If the tile is left or right
 				{
 					if (p.X == 1) //right of the player
@@ -192,7 +193,6 @@ namespace team_rocket
 
 			}
 
-			
 			if (futureCollidedTileIndex.Count > 0)
 			{
 				if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
@@ -295,7 +295,7 @@ namespace team_rocket
 				if (bNowD)
 					character.Velocity = new SizeF(character.Velocity.Width + velocityLR, character.Velocity.Height);
 				else
-				character.Velocity = new SizeF(0, character.Velocity.Height);
+					character.Velocity = new SizeF(0, character.Velocity.Height);
 			}
 			if (e.KeyCode == Keys.D)
 			{
@@ -303,7 +303,7 @@ namespace team_rocket
 				if (bNowA)
 					character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
 				else
-				character.Velocity = new SizeF(0, character.Velocity.Height);
+					character.Velocity = new SizeF(0, character.Velocity.Height);
 			}
 			if (e.KeyCode == Keys.Space)
 			{
