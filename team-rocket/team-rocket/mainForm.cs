@@ -139,7 +139,7 @@ namespace team_rocket
 		{
 			RectangleF player = character.RectF;
 			SizeF velocity = character.Velocity;
-			if (velocity.Height < 32)
+			if (velocity.Height < 31)
 				velocity.Height += g;
 
 			RectangleF futurePlayer = new RectangleF(player.Location + velocity, player.Size);
@@ -256,7 +256,7 @@ namespace team_rocket
 				// Comparing bNowA and bTempA to detect if the key was being pressed since the last comparison.
 				if (bNowA != bTempA)
 				{
-					//The code which should be executed only one time if the key is being pressed.
+					//The code which should be executed only one time if the key is being pressed. like edge control
 					character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
 				}
 			}
@@ -292,13 +292,17 @@ namespace team_rocket
 			if (e.KeyCode == Keys.A)
 			{
 				bNowA = bTempA = false; //bNowA and bTempA will be set to false because the key isn't pressed anymore.
-				//character.Velocity = new SizeF(character.Velocity.Width + velocityLR, character.Velocity.Height);
+				if (bNowD)
+					character.Velocity = new SizeF(character.Velocity.Width + velocityLR, character.Velocity.Height);
+				else
 				character.Velocity = new SizeF(0, character.Velocity.Height);
 			}
 			if (e.KeyCode == Keys.D)
 			{
 				bNowD = bTempD = false;
-				//character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
+				if (bNowA)
+					character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
+				else
 				character.Velocity = new SizeF(0, character.Velocity.Height);
 			}
 			if (e.KeyCode == Keys.Space)
