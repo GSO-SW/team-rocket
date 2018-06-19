@@ -14,7 +14,7 @@ namespace team_rocket
 	public partial class main : Form
 	{
 		/// BUGS:
-		/// -when hitting a tile from the right, the character sometimes move in the other direction
+		/// 
 		/// -jumping is spamable
 
 		Timer updateGraphicsTimer;
@@ -43,8 +43,8 @@ namespace team_rocket
 			#region initialize vars
 			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
 			velocityLR = 5;
-			jumpVelocity = 11;
-			g = 0.5f;
+			jumpVelocity = 15;
+			g = 1f;
 			#endregion
 
 			#region Subscribe events
@@ -164,7 +164,7 @@ namespace team_rocket
 
 			// player position in tiles
 			Point playerTile = new Point(Convert.ToInt32(Math.Round(player.X / 32)), Convert.ToInt32(Math.Round(player.Y / 32)));
-			// vars for saving the "border"
+			// vars for saving the "border" where the player has to hit
 			float heightBorder = -1;
 			float widthBorder = -1;
 
@@ -203,7 +203,7 @@ namespace team_rocket
 				else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
 				{
 					//Unterkante der kachel muss betrachtet werden
-					velocity.Height = player.Y - heightBorder;
+					velocity.Height = heightBorder - player.Y;
 				}
 
 				if (velocity.Width > 0 && widthBorder != -1) //Meaning movement to the right
@@ -214,7 +214,7 @@ namespace team_rocket
 				else if (velocity.Width < 0 && widthBorder != -1) //Meaning movement to the left
 				{
 					//rechte seite der Kachel muss betrachtet werden
-					velocity.Width = player.X - widthBorder;
+					velocity.Width = widthBorder - player.X;
 				}
 			}
 
