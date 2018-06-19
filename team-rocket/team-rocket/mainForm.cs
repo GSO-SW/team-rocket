@@ -6,12 +6,17 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace team_rocket
 {
 	public partial class main : Form
 	{
+		/// BUGS:
+		/// -when hitting a tile from the right, the character sometimes move in the other direction
+		/// -jumping is spamable
+
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
 		Bitmap[] bitmapArray;
@@ -21,22 +26,31 @@ namespace team_rocket
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
 		float g; //Gravitational acceleration
-		float velocity; //Unit px/tick
+		float velocityLR, jumpVelocity; //Unit px/tick for the left or right and for the jumpspeed
 
 		public main()
 		{
 			InitializeComponent();
 
-			ClientSize = new Size(1024, 768); //32*32 | 32*24
-
-
+			#region Configure the window
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+			
+			ClientSize = new Size(1024, 768); //32*32 | 32*24
+			#endregion
 
+			#region initialize vars
 			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
-			velocity = 5;
+			velocityLR = 5;
+			jumpVelocity = 11;
 			g = 0.5f;
+			#endregion
+
+			#region Subscribe events
+			KeyDown += OnKeyDown;
+			KeyUp += OnKeyUp;
+			#endregion
 
 			#region Initialize Frame Timer
 			updateGraphicsTimer = new Timer
@@ -48,12 +62,10 @@ namespace team_rocket
 			#endregion
 
 			#region Loading Textures
-			// Here are the game sprites being loaded in
 			bitmapArray = new Bitmap[3];
 			bitmapArray[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
 			bitmapArray[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\background_1.png");
 			bitmapArray[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\ground_1.png");
-			#endregion
 
 			/* List of bitmap array with id
 			 * 
@@ -62,6 +74,7 @@ namespace team_rocket
 			 *    1         background_1
 			 *    2         ground_1
 			 */
+			#endregion
 
 			#region Initialize the tiles
 			tilesArray = new Tile[768];
@@ -77,35 +90,20 @@ namespace team_rocket
 			#endregion
 
 			#region Test Level
-			/*	int[] imageIDs = new int[768];
-				for (int i = 0; i < imageIDs.Length; i++)
-				{
-					imageIDs[i] = 1;
-					if (i >= 704)
-						imageIDs[i] = 2;
-				}
-				testLevel = new Level(imageIDs, new Point(0, 640), new Point(1024 - 32, 640));
-
-				loadLevel(testLevel);*/
-			#endregion
-
-			#region Test Level 2
 			int[] imageIDs = new int[768];
 			for (int i = 0; i < imageIDs.Length; i++)
 			{
 				imageIDs[i] = 1;
-				if (i >= 710)
+				if (i >= 710 || i == 300)
 					imageIDs[i] = 2;
 			}
-			testLevel = new Level(imageIDs, new Point(1024/2, 768/2), new Point(1024 - 32, 640));
+			testLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
 
 			loadLevel(testLevel);
 			#endregion
 
+			// Spawn Character
 			character = new Character(testLevel.StartPoint);
-			KeyDown += OnKeyDown;
-			KeyUp += OnKeyUp;
-
 		}
 
 		/// <summary>
@@ -144,105 +142,86 @@ namespace team_rocket
 			if (velocity.Height < 32)
 				velocity.Height += g;
 
+			RectangleF futurePlayer = new RectangleF(player.Location + velocity, player.Size);
 
-			RectangleF futurePlayer = new RectangleF(player.Location + velocity,player.Size);
-
-			#region
-			/*	List<int> neededTiles = new List<int>();
-				int a = Convert.ToInt32(player.Y + (Math.Round(player.X / 32)));
-				neededTiles.Add(a - 33);
-				neededTiles.Add(a - 32);
-				neededTiles.Add(a - 31);
-				neededTiles.Add(a - 1);
-				neededTiles.Add(a);
-				neededTiles.Add(a + 1);
-				neededTiles.Add(a + 31);
-				neededTiles.Add(a + 32);
-				neededTiles.Add(a + 33);
-				neededTiles.Add(a + 63);
-				neededTiles.Add(a + 64);
-				neededTiles.Add(a + 65);
-
-				/*   Index positions
-				 *   0  1  2
-				 *   3  4  5
-				 *   6  7  8
-				 *   9  10 11
-
-
-				for (int i = 0; i < neededTiles.Count; i++)
-				{
-					if (tilesArray[neededTiles[i]].HitboxFlag && tilesArray[neededTiles[i]].Rect.IntersectsWith(futurePlayer))
-					{
-						if(i == 10)
-						{
-							if (velocity.Height > 0)
-								velocity.Height = 0;
-						}
-					}
-				}
-				*/
-			#endregion
-
-			List<int> collidedTileIndex = new List<int>();
-			List<int> futureCollidedTileIndex = new List<int>();int tempX = -1;
-			bool sameX = true;
-			int tempY = -1;
-			bool sameY = true;
+			//List<int> collidedTileIndex = new List<int>();
+			List<int> futureCollidedTileIndex = new List<int>();
 
 			for (int i = 0; i < tilesArray.Length; i++)
 			{
 				if (tilesArray[i].HitboxFlag)
 				{
-					if (tilesArray[i].Rect.IntersectsWith(player))
+					/*if (tilesArray[i].Rect.IntersectsWith(player))
 					{
 						collidedTileIndex.Add(i);
-					}
+					}*/
 					if (tilesArray[i].Rect.IntersectsWith(futurePlayer))
 					{
 						futureCollidedTileIndex.Add(i);
-
-						//if (tempY == tilesArray[i].Rect.Y)
-						{
-
-						}
-
 					}
 				}
 			}
 
-			//foreach (int item in futureCollidedTileIndex)
-			if (futureCollidedTileIndex.Count != 0)
+			// player position in tiles
+			Point playerTile = new Point(Convert.ToInt32(Math.Round(player.X / 32)), Convert.ToInt32(Math.Round(player.Y / 32)));
+			// vars for saving the "border"
+			float heightBorder = -1;
+			float widthBorder = -1;
+
+			
+			foreach (int i in futureCollidedTileIndex)
 			{
-				int item = futureCollidedTileIndex[0];
-				if (velocity.Height > 0) //Meaning falling
+				// detecting in which direction the future hitted tile is
+				Point p = Point.Subtract(new Point(Convert.ToInt32(tilesArray[i].Rect.X / 32), Convert.ToInt32(tilesArray[i].Rect.Y / 32)), (Size)playerTile);
+				
+				if (p.X == -1 || p.X == 0 || p.X == 1) //If the tile is above or under the player
+				{
+					if (p.Y == 2) //under the player
+						heightBorder = tilesArray[i].Rect.Y; //set the height border at the top edge of the tile
+					else if (p.Y == -1) // above the player
+						heightBorder = tilesArray[i].Rect.Y + tilesArray[i].Rect.Height; //set the height border at the bottom edge of the tile
+				}
+				
+				if (p.Y == 0 || p.Y == 1) //If the tile is left or right
+				{
+					if (p.X == 1) //right of the player
+						widthBorder = tilesArray[i].Rect.X; // set the left edge as width border
+					else if (p.X == -1) //left of the player
+						widthBorder = tilesArray[i].Rect.X + tilesArray[i].Rect.Width;//set the right edge as width border
+				}
+
+			}
+
+			
+			if (futureCollidedTileIndex.Count > 0)
+			{
+				if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
 				{
 					//Oberkante der kachel muss betrachtet werden
-					//velocity.Height = tilesArray[item].Rect.Location.Y - (charRectF.Location.Y + charRectF.Size.Height);
-
-					velocity.Height = tilesArray[item].Rect.Location.Y - (player.Location.Y + player.Size.Height);
+					velocity.Height = heightBorder - (player.Y + player.Height);
 				}
-				else if (velocity.Height < 0) //Meaning jumping
+				else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
 				{
 					//Unterkante der kachel muss betrachtet werden
-				//	velocity.Height = charRectF.Location.Y - tilesArray[item].Rect.Location.Y;
+					velocity.Height = player.Y - heightBorder;
 				}
 
-				if (velocity.Width < 0) //Meaning movement to the left
+				if (velocity.Width > 0 && widthBorder != -1) //Meaning movement to the right
+				{
+					//linke seite der kachel muss betrachtet werden
+					velocity.Width = widthBorder - (player.X + player.Width);
+				}
+				else if (velocity.Width < 0 && widthBorder != -1) //Meaning movement to the left
 				{
 					//rechte seite der Kachel muss betrachtet werden
-
-				}
-				else if (velocity.Width > 0) //Meaning movement to the right
-				{
-					//linke setite der kachel muss betrachtet werden
-					//velocity.Width = tilesArray[item].Rect.Location.X - (charRectF.Location.X + charRectF.Size.Width);
+					velocity.Width = player.X - widthBorder;
 				}
 			}
 
 			player.Location += velocity;
 			character.Velocity = velocity;
 			character.RectF = player;
+
 			Invalidate();
 		}
 
@@ -253,17 +232,12 @@ namespace team_rocket
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			base.OnPaint(e);
-			int i = 0;
 			foreach (Tile item in tilesArray)
 			{
 				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
-				e.Graphics.DrawString(i.ToString(), Font, Brushes.Black, PointF.Add(item.Rect.Location, new Size(10, 10)));
-				i++;
 			}
 			e.Graphics.FillRectangle(Brushes.Blue, character.RectF);
-			e.Graphics.DrawString(character.RectF.Location.ToString(), Font, Brushes.Black, new PointF(100, 100));
-			e.Graphics.DrawString(character.RectF.X / 32 + "|||" + character.RectF.Y / 32, Font, Brushes.Blue, new PointF(100, 150));
-
+			e.Graphics.DrawString(character.RectF.Location.ToString(), Font, Brushes.Black, new Point(100, 100));
 		}
 
 		/// <summary>
@@ -283,7 +257,7 @@ namespace team_rocket
 				if (bNowA != bTempA)
 				{
 					//The code which should be executed only one time if the key is being pressed.
-					character.Velocity = new SizeF(character.Velocity.Width - velocity, character.Velocity.Height);
+					character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
 				}
 			}
 
@@ -293,7 +267,7 @@ namespace team_rocket
 				bNowD = true;
 				if (bNowD != bTempD)
 				{
-					character.Velocity = new SizeF(character.Velocity.Width + velocity, character.Velocity.Height);
+					character.Velocity = new SizeF(character.Velocity.Width + velocityLR, character.Velocity.Height);
 				}
 			}
 
@@ -303,7 +277,7 @@ namespace team_rocket
 				bNowSpace = true;
 				if (bNowSpace != bTempSpace)
 				{
-					character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height - 20);
+					character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height - jumpVelocity);
 				}
 			}
 		}
@@ -318,26 +292,19 @@ namespace team_rocket
 			if (e.KeyCode == Keys.A)
 			{
 				bNowA = bTempA = false; //bNowA and bTempA will be set to false because the key isn't pressed anymore.
-				character.Velocity = new SizeF(character.Velocity.Width + velocity, character.Velocity.Height);
+				//character.Velocity = new SizeF(character.Velocity.Width + velocityLR, character.Velocity.Height);
+				character.Velocity = new SizeF(0, character.Velocity.Height);
 			}
 			if (e.KeyCode == Keys.D)
 			{
 				bNowD = bTempD = false;
-				character.Velocity = new SizeF(character.Velocity.Width - velocity, character.Velocity.Height);
+				//character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
+				character.Velocity = new SizeF(0, character.Velocity.Height);
 			}
 			if (e.KeyCode == Keys.Space)
 			{
 				bNowSpace = bTempSpace = false;
 			}
-		}
-
-		private bool detectCollision(RectangleF a, RectangleF b)
-		{
-			if (a.Location.X < b.Location.X + b.Size.Width && a.Location.X + a.Size.Width > b.Location.X && a.Location.Y < b.Location.Y + b.Size.Height && a.Location.Y + a.Size.Height > b.Location.Y)
-			{
-				return true;
-			}
-			return false;
 		}
 	}
 }

@@ -7,3 +7,39 @@ PORTAL 2D:
 +steuerung
 +optionen(einstellungen)
 +player-animation
+
+
+/*	List<int> neededTiles = new List<int>();
+				int a = Convert.ToInt32(player.Y + (Math.Round(player.X / 32)));
+				neededTiles.Add(a - 33);
+				neededTiles.Add(a - 32);
+				neededTiles.Add(a - 31);
+				neededTiles.Add(a - 1);
+				neededTiles.Add(a);
+				neededTiles.Add(a + 1);
+				neededTiles.Add(a + 31);
+				neededTiles.Add(a + 32);
+				neededTiles.Add(a + 33);
+				neededTiles.Add(a + 63);
+				neededTiles.Add(a + 64);
+				neededTiles.Add(a + 65);
+
+				/*   Index positions
+				 *   0  1  2
+				 *   3  4  5
+				 *   6  7  8
+				 *   9  10 11
+
+
+				for (int i = 0; i < neededTiles.Count; i++)
+				{
+					if (tilesArray[neededTiles[i]].HitboxFlag && tilesArray[neededTiles[i]].Rect.IntersectsWith(futurePlayer))
+					{
+						if(i == 10)
+						{
+							if (velocity.Height > 0)
+								velocity.Height = 0;
+						}
+					}
+				}
+				*/
