@@ -54,6 +54,15 @@ namespace team_rocket
                 {
                     IsMovingLR = false;
                 }
+
+                if(velocity.Height != 0)
+                {
+                    IsJumping = true;
+                }
+                else
+                {
+                    IsJumping = false;
+                }
             }
 		}
 
