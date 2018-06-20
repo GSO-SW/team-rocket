@@ -28,6 +28,7 @@ namespace team_rocket
         bool bTempSpace, bNowSpace;
         float g; //Gravitational acceleration
         float velocityLR, jumpVelocity; //Unit px/tick for the left or right and for the jumpspeed
+        int horizontalMovementFrameCounter; // Counts the frames where the character moves horizontally.
 
         public main()
         {
@@ -46,6 +47,7 @@ namespace team_rocket
             velocityLR = 5;
             jumpVelocity = 15;
             g = 1f;
+            horizontalMovementFrameCounter = 0;
             #endregion
 
             #region Subscribe events
@@ -225,6 +227,18 @@ namespace team_rocket
             player.Location += velocity;
             character.Velocity = velocity;
             character.RectF = player;
+
+            #region Animation
+            if(character.IsMovingLR)
+            {
+                horizontalMovementFrameCounter++;
+            }
+            if(horizontalMovementFrameCounter == 20)
+            {
+                horizontalMovementFrameCounter = 0;
+                character.NextFrame();
+            }
+            #endregion
 
             Invalidate();
         }

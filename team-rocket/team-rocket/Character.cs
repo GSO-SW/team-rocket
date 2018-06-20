@@ -114,7 +114,15 @@ namespace team_rocket
         public bool IsMovingLR
         {
             get { return isMovingLR; }
-            set { isMovingLR = value; }
+            set
+            {
+                isMovingLR = value;
+
+                if(!isMovingLR)
+                {
+                    currentSpriteIndex = 0;
+                }
+            }
         }
 		#endregion
 
@@ -128,6 +136,9 @@ namespace team_rocket
 			rect.Size = new SizeF(32, 64); //Hitbox Size
 			velocity = new SizeF(0f, 0f);
             currentSpriteIndex = 0; // Index starts at 0 for the first sprite of the animation
+            IsMovingLR = false;
+            IsJumping = false;
+            IsHeadingRight = true;
         }
 
         /// <summary>
@@ -135,7 +146,19 @@ namespace team_rocket
         /// </summary>
         public void NextFrame()
         {
-            
+            if (!IsJumping && IsMovingLR)
+            {
+                // If the whole running animation was being played, start again at 0
+                if (currentSpriteIndex == 2)
+                {
+                    currentSpriteIndex = 0;
+                }
+                currentSpriteIndex++;
+            }
+            else
+            {
+                currentSpriteIndex = 0;
+            }
         }
 	}
 }
