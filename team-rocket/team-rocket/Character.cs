@@ -12,6 +12,9 @@ namespace team_rocket
 		private Bitmap[] sprite;
 		private SizeF velocity;
 		private RectangleF rect;
+        private int currentSpriteIndex;
+        private bool isJumping;
+        private bool headingRight;
 
 		#region Properties
 		/// <summary>
@@ -50,17 +53,43 @@ namespace team_rocket
 			set { rect.Location = value; }
 		}
 
+        /// <summary>
+        /// Returns the sprite Bitmap of the characters current animation frame.
+        /// </summary>
+        public Bitmap CurrentSprite
+        {
+            get { return sprite[currentSpriteIndex]; }
+        }
+
+        /// <summary>
+        /// Determines, whether the character is jumping or not.
+        /// </summary>
+        public bool IsJumping
+        {
+            get { return IsJumping; }
+            set { IsJumping = value; }
+        }
+
 		#endregion
 
 		/// <summary>
 		/// Provides a class, which will represent the players character.
 		/// </summary>
-		/// <param name="point">Sets the initial location of the character with a Point object.</param>
+		/// <param name="point">Sets the initial location of the character with a PointF structure.</param>
 		public Character(PointF point)
 		{
 			rect.Location = point; //StartPos
 			rect.Size = new SizeF(32, 64); //Hitbox Size
 			velocity = new SizeF(0f, 0f);
-		}
+            currentSpriteIndex = 0; // Index starts at 0 for the first sprite of the animation
+        }
+
+        /// <summary>
+        /// Skips to the next frame of the character animation.
+        /// </summary>
+        public void NextFrame()
+        {
+            
+        }
 	}
 }
