@@ -14,7 +14,8 @@ namespace team_rocket
 		private RectangleF rect;
         private int currentSpriteIndex;
         private bool isJumping;
-        private bool headingRight;
+        private bool isHeadingRight;
+        private bool isMovingLR;
 
 		#region Properties
 		/// <summary>
@@ -35,7 +36,25 @@ namespace team_rocket
 		public SizeF Velocity
 		{
 			get { return velocity; }
-			set { velocity = value; }
+			set
+            {
+                velocity = value;
+                
+                if(velocity.Width > 0)
+                {
+                    IsHeadingRight = true;
+                    IsMovingLR = true;
+                }
+                if(velocity.Width < 0)
+                {
+                    IsHeadingRight = false;
+                    IsMovingLR = true;
+                }
+                if(velocity.Width == 0)
+                {
+                    IsMovingLR = false;
+                }
+            }
 		}
 
 		/// <summary>
@@ -66,10 +85,28 @@ namespace team_rocket
         /// </summary>
         public bool IsJumping
         {
-            get { return IsJumping; }
-            set { IsJumping = value; }
+            get { return isJumping; }
+            set { isJumping = value; }
         }
 
+        /// <summary>
+        /// Determines, if the character sprite is looking right or left.
+        /// Left = false | Right = true
+        /// </summary>
+        public bool IsHeadingRight
+        {
+            get { return isHeadingRight; }
+            set { isHeadingRight = value; }
+        }
+
+        /// <summary>
+        /// Determines, whether the character is moving left or right at all.
+        /// </summary>
+        public bool IsMovingLR
+        {
+            get { return isMovingLR; }
+            set { isMovingLR = value; }
+        }
 		#endregion
 
 		/// <summary>
