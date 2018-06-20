@@ -14,8 +14,8 @@ namespace team_rocket
 	public partial class main : Form
 	{
 		/// BUGS:
-		/// - when the player falls from special heights, the player does a little jump after landing cause by "glitching" into the ground
 		/// - when the player hits a tile from the side and is a little bit under the upper edge, he will bounch up
+		/// 
 		/// - jumping is spamable
 
 		Timer updateGraphicsTimer;
@@ -140,7 +140,7 @@ namespace team_rocket
 		{
 			RectangleF player = character.RectF;
 			SizeF velocity = character.Velocity;
-			if (velocity.Height < 31)
+			if (velocity.Height < 30)
 				velocity.Height += g;
 
 			RectangleF futurePlayer = new RectangleF(player.Location + velocity, player.Size);
@@ -198,6 +198,8 @@ namespace team_rocket
 				if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
 				{
 					//Oberkante der kachel muss betrachtet werden
+					if (heightBorder < (player.Y + player.Height))
+						player.Y = player.Y - ((player.Y + player.Height) + heightBorder);
 					velocity.Height = heightBorder - (player.Y + player.Height);
 				}
 				else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
