@@ -199,7 +199,7 @@ namespace team_rocket
 				{
 					//Oberkante der kachel muss betrachtet werden
 					if (heightBorder < (player.Y + player.Height))
-						player.Y = player.Y - ((player.Y + player.Height) + heightBorder);
+						player.Y = player.Y - ((player.Y + player.Height) - heightBorder);
 					velocity.Height = heightBorder - (player.Y + player.Height);
 				}
 				else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
