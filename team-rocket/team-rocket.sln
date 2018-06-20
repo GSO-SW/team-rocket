@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27428.2043
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "team-rocket", "team-rocket\team-rocket.csproj", "{26200364-E62D-4988-AC7A-E35C100451A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapEditorP2D", "..\MapEditorP2D\MapEditorP2D\MapEditorP2D.csproj", "{F2011E64-E1ED-4385-A021-F48F10488B0B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{26200364-E62D-4988-AC7A-E35C100451A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26200364-E62D-4988-AC7A-E35C100451A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26200364-E62D-4988-AC7A-E35C100451A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2011E64-E1ED-4385-A021-F48F10488B0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2011E64-E1ED-4385-A021-F48F10488B0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2011E64-E1ED-4385-A021-F48F10488B0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2011E64-E1ED-4385-A021-F48F10488B0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
