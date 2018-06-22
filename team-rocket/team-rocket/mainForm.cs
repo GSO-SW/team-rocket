@@ -14,9 +14,8 @@ namespace team_rocket
 	public partial class main : Form
 	{
 		/// BUGS:
-		/// - when the player hits a tile from the side and is a little bit under the upper edge, he will bounch up
-		/// 
 		/// - jumping is spamable
+		/// 
 
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
@@ -53,21 +52,18 @@ namespace team_rocket
 			KeyUp += OnKeyUp;
 			#endregion
 
-			#region Initialize Frame Timer
-			updateGraphicsTimer = new Timer
-			{
-				Interval = 20
-			};
-			updateGraphicsTimer.Tick += OnTimerTick;
-			updateGraphicsTimer.Start();
-			#endregion
-
 			#region Loading Textures
-			bitmapArray = new Bitmap[3];
-			bitmapArray[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
-			bitmapArray[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\background_1.png");
-			bitmapArray[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\ground_1.png");
-
+			try
+			{
+				bitmapArray = new Bitmap[3];
+				bitmapArray[0] = new Bitmap(Application.StartupPath + @"\gfx\default.png");
+				bitmapArray[1] = new Bitmap(Application.StartupPath + @"\gfx\background_1.png");
+				bitmapArray[2] = new Bitmap(Application.StartupPath + @"\gfx\ground_1.png");
+			}
+			catch (Exception)
+			{
+				MessageBox.Show("Missing files: " + Application.StartupPath + @"\gfx\", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 			/* List of bitmap array with id
 			 * 
 			 *  = #/i =    = name =
@@ -101,6 +97,15 @@ namespace team_rocket
 			testLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
 
 			loadLevel(testLevel);
+			#endregion
+
+			#region Initialize Frame Timer
+			updateGraphicsTimer = new Timer
+			{
+				Interval = 20
+			};
+			updateGraphicsTimer.Tick += OnTimerTick;
+			updateGraphicsTimer.Start();
 			#endregion
 
 			// Spawn Character
@@ -140,35 +145,35 @@ namespace team_rocket
 		{
 			RectangleF player = character.RectF;
 			SizeF velocity = character.Velocity;
-			if (velocity.Height < 30)
+			if (velocity.Height < 30) //the player shouldn't fall faster than 30 px/tick, it can cause miss calculation
 				velocity.Height += g;
+
+			if (!ClientRectangle.IntersectsWith(Rectangle.Round(player)))
+				player.Location = testLevel.StartPoint;
 
 			RectangleF futurePlayer = new RectangleF(player.Location + velocity, player.Size);
 
-			//List<int> collidedTileIndex = new List<int>();
+			#region Detect the collision in the next tick
 			List<int> futureCollidedTileIndex = new List<int>();
-
+			
 			for (int i = 0; i < tilesArray.Length; i++)
 			{
 				if (tilesArray[i].HitboxFlag)
 				{
-					/*if (tilesArray[i].Rect.IntersectsWith(player))
-					{
-						collidedTileIndex.Add(i);
-					}*/
 					if (tilesArray[i].Rect.IntersectsWith(futurePlayer))
 					{
 						futureCollidedTileIndex.Add(i);
 					}
 				}
 			}
+			#endregion
 
+			#region Detect in which direction the collision will occure and calculating the borders
 			// player position in tiles
 			Point playerTile = new Point(Convert.ToInt32(Math.Round(player.X / 32)), Convert.ToInt32(Math.Round(player.Y / 32)));
 			// vars for saving the "border" where the player has to hit
 			float heightBorder = -1;
 			float widthBorder = -1;
-
 
 			foreach (int i in futureCollidedTileIndex)
 			{
@@ -192,7 +197,9 @@ namespace team_rocket
 				}
 
 			}
+			#endregion
 
+			#region Apply the borders to the velocity of the player
 			if (futureCollidedTileIndex.Count > 0)
 			{
 				if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
@@ -219,6 +226,7 @@ namespace team_rocket
 					velocity.Width = widthBorder - player.X;
 				}
 			}
+			#endregion
 
 			player.Location += velocity;
 			character.Velocity = velocity;

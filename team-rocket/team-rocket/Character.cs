@@ -43,13 +43,6 @@ namespace team_rocket
 			get { return rect; }
 			set { rect = value; }
 		}
-
-		public PointF location
-		{
-			get { return rect.Location; }
-			set { rect.Location = value; }
-		}
-
 		#endregion
 
 		/// <summary>
