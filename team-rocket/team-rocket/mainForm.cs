@@ -21,7 +21,7 @@ namespace team_rocket
 		Tile[] tilesArray;
 		Bitmap[] bitmapArray;
 		Level testLevel;
-		Character character;
+		Character[] chars;
 		bool bTempA, bNowA;
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
@@ -109,7 +109,8 @@ namespace team_rocket
 			#endregion
 
 			// Spawn Character
-			character = new Character(testLevel.StartPoint);
+			chars = new Character[1];
+			chars[0] = new Character(testLevel.StartPoint);
 		}
 
 		/// <summary>
@@ -143,95 +144,97 @@ namespace team_rocket
 		/// <param name="e">Conatins informatin about the Event.</param>
 		private void OnTimerTick(object sender, EventArgs e)
 		{
-			RectangleF player = character.RectF;
-			SizeF velocity = character.Velocity;
-			if (velocity.Height < 30) //the player shouldn't fall faster than 30 px/tick, it can cause miss calculation
-				velocity.Height += g;
-
-			if (!ClientRectangle.IntersectsWith(Rectangle.Round(player)))
-				player.Location = testLevel.StartPoint;
-
-			RectangleF futurePlayer = new RectangleF(player.Location + velocity, player.Size);
-
-			#region Detect the collision in the next tick
-			List<int> futureCollidedTileIndex = new List<int>();
-			
-			for (int i = 0; i < tilesArray.Length; i++)
+			for (int j = 0; j < chars.Length; j++)
 			{
-				if (tilesArray[i].HitboxFlag)
+				RectangleF character = chars[j].RectF;
+				SizeF velocity = chars[j].Velocity;
+				if (velocity.Height < 30) //the player shouldn't fall faster than 30 px/tick, it can cause miss calculation
+					velocity.Height += g;
+
+				if (!ClientRectangle.IntersectsWith(Rectangle.Round(character)))
+					character.Location = testLevel.StartPoint;
+
+				RectangleF futureCharacter = new RectangleF(character.Location + velocity, character.Size);
+
+				#region Detect the collision in the next tick
+				List<int> futureCollidedTileIndex = new List<int>();
+
+				for (int i = 0; i < tilesArray.Length; i++)
 				{
-					if (tilesArray[i].Rect.IntersectsWith(futurePlayer))
+					if (tilesArray[i].HitboxFlag)
 					{
-						futureCollidedTileIndex.Add(i);
+						if (tilesArray[i].Rect.IntersectsWith(futureCharacter))
+						{
+							futureCollidedTileIndex.Add(i);
+						}
 					}
 				}
+				#endregion
+
+				#region Detect in which direction the collision will occure and calculating the borders
+				// player position in tiles
+				Point playerTile = new Point(Convert.ToInt32(Math.Round(character.X / 32)), Convert.ToInt32(Math.Round(character.Y / 32)));
+				// vars for saving the "border" where the player has to hit
+				float heightBorder = -1;
+				float widthBorder = -1;
+
+				foreach (int i in futureCollidedTileIndex)
+				{
+					// detecting in which direction the future hitted tile is
+					Point p = Point.Subtract(new Point(Convert.ToInt32(tilesArray[i].Rect.X / 32), Convert.ToInt32(tilesArray[i].Rect.Y / 32)), (Size)playerTile);
+
+					if (p.X == -1 || p.X == 0 || p.X == 1) //If the tile is above or under the player
+					{
+						if (p.Y == 2) //under the player
+							heightBorder = tilesArray[i].Rect.Y; //set the height border at the top edge of the tile
+						else if (p.Y == -1) // above the player
+							heightBorder = tilesArray[i].Rect.Y + tilesArray[i].Rect.Height; //set the height border at the bottom edge of the tile
+					}
+
+					if (p.Y == 0 || p.Y == 1) //If the tile is left or right
+					{
+						if (p.X == 1) //right of the player
+							widthBorder = tilesArray[i].Rect.X; // set the left edge as width border
+						else if (p.X == -1) //left of the player
+							widthBorder = tilesArray[i].Rect.X + tilesArray[i].Rect.Width;//set the right edge as width border
+					}
+
+				}
+				#endregion
+
+				#region Apply the borders to the velocity of the player
+				if (futureCollidedTileIndex.Count > 0)
+				{
+					if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
+					{
+						//Oberkante der kachel muss betrachtet werden
+						if (heightBorder < (character.Y + character.Height))
+							character.Y = character.Y - ((character.Y + character.Height) - heightBorder);
+						velocity.Height = heightBorder - (character.Y + character.Height);
+					}
+					else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
+					{
+						//Unterkante der kachel muss betrachtet werden
+						velocity.Height = heightBorder - character.Y;
+					}
+
+					if (velocity.Width > 0 && widthBorder != -1) //Meaning movement to the right
+					{
+						//linke seite der kachel muss betrachtet werden
+						velocity.Width = widthBorder - (character.X + character.Width);
+					}
+					else if (velocity.Width < 0 && widthBorder != -1) //Meaning movement to the left
+					{
+						//rechte seite der Kachel muss betrachtet werden
+						velocity.Width = widthBorder - character.X;
+					}
+				}
+				#endregion
+
+				character.Location += velocity;
+				chars[j].Velocity = velocity;
+				chars[j].RectF = character;
 			}
-			#endregion
-
-			#region Detect in which direction the collision will occure and calculating the borders
-			// player position in tiles
-			Point playerTile = new Point(Convert.ToInt32(Math.Round(player.X / 32)), Convert.ToInt32(Math.Round(player.Y / 32)));
-			// vars for saving the "border" where the player has to hit
-			float heightBorder = -1;
-			float widthBorder = -1;
-
-			foreach (int i in futureCollidedTileIndex)
-			{
-				// detecting in which direction the future hitted tile is
-				Point p = Point.Subtract(new Point(Convert.ToInt32(tilesArray[i].Rect.X / 32), Convert.ToInt32(tilesArray[i].Rect.Y / 32)), (Size)playerTile);
-
-				if (p.X == -1 || p.X == 0 || p.X == 1) //If the tile is above or under the player
-				{
-					if (p.Y == 2) //under the player
-						heightBorder = tilesArray[i].Rect.Y; //set the height border at the top edge of the tile
-					else if (p.Y == -1) // above the player
-						heightBorder = tilesArray[i].Rect.Y + tilesArray[i].Rect.Height; //set the height border at the bottom edge of the tile
-				}
-
-				if (p.Y == 0 || p.Y == 1) //If the tile is left or right
-				{
-					if (p.X == 1) //right of the player
-						widthBorder = tilesArray[i].Rect.X; // set the left edge as width border
-					else if (p.X == -1) //left of the player
-						widthBorder = tilesArray[i].Rect.X + tilesArray[i].Rect.Width;//set the right edge as width border
-				}
-
-			}
-			#endregion
-
-			#region Apply the borders to the velocity of the player
-			if (futureCollidedTileIndex.Count > 0)
-			{
-				if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
-				{
-					//Oberkante der kachel muss betrachtet werden
-					if (heightBorder < (player.Y + player.Height))
-						player.Y = player.Y - ((player.Y + player.Height) - heightBorder);
-					velocity.Height = heightBorder - (player.Y + player.Height);
-				}
-				else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
-				{
-					//Unterkante der kachel muss betrachtet werden
-					velocity.Height = heightBorder - player.Y;
-				}
-
-				if (velocity.Width > 0 && widthBorder != -1) //Meaning movement to the right
-				{
-					//linke seite der kachel muss betrachtet werden
-					velocity.Width = widthBorder - (player.X + player.Width);
-				}
-				else if (velocity.Width < 0 && widthBorder != -1) //Meaning movement to the left
-				{
-					//rechte seite der Kachel muss betrachtet werden
-					velocity.Width = widthBorder - player.X;
-				}
-			}
-			#endregion
-
-			player.Location += velocity;
-			character.Velocity = velocity;
-			character.RectF = player;
-
 			Invalidate();
 		}
 
@@ -246,8 +249,10 @@ namespace team_rocket
 			{
 				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 			}
-			e.Graphics.FillRectangle(Brushes.Blue, character.RectF);
-			e.Graphics.DrawString(character.RectF.Location.ToString(), Font, Brushes.Black, new Point(100, 100));
+			foreach (Character item in chars)
+			{
+				e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
+			}
 		}
 
 		/// <summary>
@@ -267,7 +272,7 @@ namespace team_rocket
 				if (bNowA != bTempA)
 				{
 					//The code which should be executed only one time if the key is being pressed. like edge control
-					character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width - velocityLR, chars[0].Velocity.Height);
 				}
 			}
 
@@ -277,7 +282,7 @@ namespace team_rocket
 				bNowD = true;
 				if (bNowD != bTempD)
 				{
-					character.Velocity = new SizeF(character.Velocity.Width + velocityLR, character.Velocity.Height);
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width + velocityLR, chars[0].Velocity.Height);
 				}
 			}
 
@@ -287,7 +292,7 @@ namespace team_rocket
 				bNowSpace = true;
 				if (bNowSpace != bTempSpace)
 				{
-					character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height - jumpVelocity);
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width, chars[0].Velocity.Height - jumpVelocity);
 				}
 			}
 		}
@@ -303,17 +308,17 @@ namespace team_rocket
 			{
 				bNowA = bTempA = false; //bNowA and bTempA will be set to false because the key isn't pressed anymore.
 				if (bNowD)
-					character.Velocity = new SizeF(character.Velocity.Width + velocityLR, character.Velocity.Height);
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width + velocityLR, chars[0].Velocity.Height);
 				else
-					character.Velocity = new SizeF(0, character.Velocity.Height);
+					chars[0].Velocity = new SizeF(0, chars[0].Velocity.Height);
 			}
 			if (e.KeyCode == Keys.D)
 			{
 				bNowD = bTempD = false;
 				if (bNowA)
-					character.Velocity = new SizeF(character.Velocity.Width - velocityLR, character.Velocity.Height);
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width - velocityLR, chars[0].Velocity.Height);
 				else
-					character.Velocity = new SizeF(0, character.Velocity.Height);
+					chars[0].Velocity = new SizeF(0, chars[0].Velocity.Height);
 			}
 			if (e.KeyCode == Keys.Space)
 			{
