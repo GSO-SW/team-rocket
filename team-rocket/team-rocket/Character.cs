@@ -9,28 +9,14 @@ namespace team_rocket
 {
 	class Character
 	{
-		private PointF location;
 		private Bitmap[] sprite;
-		private Size hitbox;
 		private SizeF velocity;
-		
+		private RectangleF rect;
+
 		#region Properties
 		/// <summary>
 		/// Sets and returns the location of the character as a Point object.
 		/// </summary>
-		public PointF Location
-		{
-			get { return location; }
-			set { location = value; }
-		}
-
-		/// <summary>
-		/// Returns the hitbox of the character.
-		/// </summary>
-		public Size Hitbox
-		{
-			get { return hitbox; }
-		}
 
 		/// <summary>
 		/// Returns the Sprite-Array, which will represent the walking animation of the character later on.
@@ -39,7 +25,7 @@ namespace team_rocket
 		{
 			get { return sprite; }
 		}
-		
+
 		/// <summary>
 		/// Returns the velocity-vector for this Character.
 		/// </summary>
@@ -47,6 +33,15 @@ namespace team_rocket
 		{
 			get { return velocity; }
 			set { velocity = value; }
+		}
+
+		/// <summary>
+		/// Contains information about the character position and size.
+		/// </summary>
+		public RectangleF RectF
+		{
+			get { return rect; }
+			set { rect = value; }
 		}
 		#endregion
 
@@ -56,9 +51,8 @@ namespace team_rocket
 		/// <param name="point">Sets the initial location of the character with a Point object.</param>
 		public Character(PointF point)
 		{
-			location = point;
-			hitbox.Height = 64;
-			hitbox.Width = 32;
+			rect.Location = point; //StartPos
+			rect.Size = new SizeF(32, 64); //Hitbox Size
 			velocity = new SizeF(0f, 0f);
 		}
 	}

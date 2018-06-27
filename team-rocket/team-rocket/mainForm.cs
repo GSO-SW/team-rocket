@@ -6,50 +6,71 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace team_rocket
 {
 	public partial class main : Form
 	{
+		/// BUGS:
+		/// - jumping is spamable
+		/// 
+
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
 		Bitmap[] bitmapArray;
 		Level testLevel;
-		Character character;
+		Character[] chars;
 		bool bTempA, bNowA;
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
-		float velocity; //Unit px/tick
+		float g; //Gravitational acceleration
+		float velocityLR, jumpVelocity; //Unit px/tick for the left or right and for the jumpspeed
 
 		public main()
 		{
 			InitializeComponent();
 
-			ClientSize = new Size(1024, 768); //32*32 | 24*32
-
+			#region Configure the window
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 
+			ClientSize = new Size(1024, 768); //32*32 | 32*24
+			#endregion
+
+			#region initialize vars
 			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
-			velocity = 5;
+			velocityLR = 5;
+			jumpVelocity = 15;
+			g = 1f;
+			#endregion
 
-
-			#region Initialize Frame Timer
-			// The timer which determines the FPS
-			updateGraphicsTimer = new Timer();
-			updateGraphicsTimer.Interval = 20;
-			updateGraphicsTimer.Tick += OnTimerTick;
-			updateGraphicsTimer.Start();
+			#region Subscribe events
+			KeyDown += OnKeyDown;
+			KeyUp += OnKeyUp;
 			#endregion
 
 			#region Loading Textures
-			// Here are the game sprites being loaded in
-			bitmapArray = new Bitmap[3];
-			bitmapArray[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
-			bitmapArray[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\background_1.png");
-			bitmapArray[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\ground_1.png");
+			try
+			{
+				bitmapArray = new Bitmap[3];
+				bitmapArray[0] = new Bitmap(Application.StartupPath + @"\gfx\default.png");
+				bitmapArray[1] = new Bitmap(Application.StartupPath + @"\gfx\background_1.png");
+				bitmapArray[2] = new Bitmap(Application.StartupPath + @"\gfx\ground_1.png");
+			}
+			catch (Exception)
+			{
+				MessageBox.Show("Missing files: " + Application.StartupPath + @"\gfx\", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			/* List of bitmap array with id
+			 * 
+			 *  = #/i =    = name =
+			 *    0         default
+			 *    1         background_1
+			 *    2         ground_1
+			 */
 			#endregion
 
 			#region Initialize the tiles
@@ -70,18 +91,26 @@ namespace team_rocket
 			for (int i = 0; i < imageIDs.Length; i++)
 			{
 				imageIDs[i] = 1;
-				if (i >= 704)
+				if (i >= 710 || i == 300)
 					imageIDs[i] = 2;
 			}
-			testLevel = new Level(imageIDs, new Point(0, 640), new Point(1024 - 32, 640));
+			testLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
 
 			loadLevel(testLevel);
 			#endregion
 
-			character = new Character(new Point(50, 50));
-			KeyDown += OnKeyDown;
-			KeyUp += OnKeyUp;
+			#region Initialize Frame Timer
+			updateGraphicsTimer = new Timer
+			{
+				Interval = 20
+			};
+			updateGraphicsTimer.Tick += OnTimerTick;
+			updateGraphicsTimer.Start();
+			#endregion
 
+			// Spawn Character
+			chars = new Character[1];
+			chars[0] = new Character(testLevel.StartPoint);
 		}
 
 		/// <summary>
@@ -115,19 +144,97 @@ namespace team_rocket
 		/// <param name="e">Conatins informatin about the Event.</param>
 		private void OnTimerTick(object sender, EventArgs e)
 		{
-
-			if (character.Location.Y < 600)
+			for (int j = 0; j < chars.Length; j++)
 			{
-				character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height + 0.5f);
-			}
-			if (character.Location.Y > 600)
-			{
-				character.Velocity = new SizeF(character.Velocity.Width, 0);
-				character.Location = new PointF(character.Location.X, 600);
-			}
+				RectangleF character = chars[j].RectF;
+				SizeF velocity = chars[j].Velocity;
+				if (velocity.Height < 30) //the player shouldn't fall faster than 30 px/tick, it can cause miss calculation
+					velocity.Height += g;
 
-			character.Location += character.Velocity;
+				if (!ClientRectangle.IntersectsWith(Rectangle.Round(character)))
+					character.Location = testLevel.StartPoint;
 
+				RectangleF futureCharacter = new RectangleF(character.Location + velocity, character.Size);
+
+				#region Detect the collision in the next tick
+				List<int> futureCollidedTileIndex = new List<int>();
+
+				for (int i = 0; i < tilesArray.Length; i++)
+				{
+					if (tilesArray[i].HitboxFlag)
+					{
+						if (tilesArray[i].Rect.IntersectsWith(futureCharacter))
+						{
+							futureCollidedTileIndex.Add(i);
+						}
+					}
+				}
+				#endregion
+
+				#region Detect in which direction the collision will occure and calculating the borders
+				// player position in tiles
+				Point playerTile = new Point(Convert.ToInt32(Math.Round(character.X / 32)), Convert.ToInt32(Math.Round(character.Y / 32)));
+				// vars for saving the "border" where the player has to hit
+				float heightBorder = -1;
+				float widthBorder = -1;
+
+				foreach (int i in futureCollidedTileIndex)
+				{
+					// detecting in which direction the future hitted tile is
+					Point p = Point.Subtract(new Point(Convert.ToInt32(tilesArray[i].Rect.X / 32), Convert.ToInt32(tilesArray[i].Rect.Y / 32)), (Size)playerTile);
+
+					if (p.X == -1 || p.X == 0 || p.X == 1) //If the tile is above or under the player
+					{
+						if (p.Y == 2) //under the player
+							heightBorder = tilesArray[i].Rect.Y; //set the height border at the top edge of the tile
+						else if (p.Y == -1) // above the player
+							heightBorder = tilesArray[i].Rect.Y + tilesArray[i].Rect.Height; //set the height border at the bottom edge of the tile
+					}
+
+					if (p.Y == 0 || p.Y == 1) //If the tile is left or right
+					{
+						if (p.X == 1) //right of the player
+							widthBorder = tilesArray[i].Rect.X; // set the left edge as width border
+						else if (p.X == -1) //left of the player
+							widthBorder = tilesArray[i].Rect.X + tilesArray[i].Rect.Width;//set the right edge as width border
+					}
+
+				}
+				#endregion
+
+				#region Apply the borders to the velocity of the player
+				if (futureCollidedTileIndex.Count > 0)
+				{
+					if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
+					{
+						//Oberkante der kachel muss betrachtet werden
+						if (heightBorder < (character.Y + character.Height))
+							character.Y = character.Y - ((character.Y + character.Height) - heightBorder);
+						velocity.Height = heightBorder - (character.Y + character.Height);
+					}
+					else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
+					{
+						//Unterkante der kachel muss betrachtet werden
+						velocity.Height = heightBorder - character.Y;
+					}
+
+					if (velocity.Width > 0 && widthBorder != -1) //Meaning movement to the right
+					{
+						//linke seite der kachel muss betrachtet werden
+						velocity.Width = widthBorder - (character.X + character.Width);
+					}
+					else if (velocity.Width < 0 && widthBorder != -1) //Meaning movement to the left
+					{
+						//rechte seite der Kachel muss betrachtet werden
+						velocity.Width = widthBorder - character.X;
+					}
+				}
+				#endregion
+
+				character.Location += velocity;
+				chars[j].Velocity = velocity;
+				chars[j].RectF = character;
+			}
 			Invalidate();
 		}
 
@@ -138,12 +245,14 @@ namespace team_rocket
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			base.OnPaint(e);
-
 			foreach (Tile item in tilesArray)
 			{
 				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 			}
-			e.Graphics.FillRectangle(Brushes.Red, new RectangleF(character.Location, character.Hitbox));
+			foreach (Character item in chars)
+			{
+				e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
+			}
 		}
 
 		/// <summary>
@@ -162,8 +271,8 @@ namespace team_rocket
 				// Comparing bNowA and bTempA to detect if the key was being pressed since the last comparison.
 				if (bNowA != bTempA)
 				{
-					//The code which should be executed only one time if the key is being pressed.
-					character.Velocity = new SizeF(character.Velocity.Width - velocity, character.Velocity.Height);
+					//The code which should be executed only one time if the key is being pressed. like edge control
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width - velocityLR, chars[0].Velocity.Height);
 				}
 			}
 
@@ -173,7 +282,7 @@ namespace team_rocket
 				bNowD = true;
 				if (bNowD != bTempD)
 				{
-					character.Velocity = new SizeF(character.Velocity.Width + velocity, character.Velocity.Height);
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width + velocityLR, chars[0].Velocity.Height);
 				}
 			}
 
@@ -183,7 +292,7 @@ namespace team_rocket
 				bNowSpace = true;
 				if (bNowSpace != bTempSpace)
 				{
-					character.Velocity = new SizeF(character.Velocity.Width, character.Velocity.Height - 20);
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width, chars[0].Velocity.Height - jumpVelocity);
 				}
 			}
 		}
@@ -198,12 +307,18 @@ namespace team_rocket
 			if (e.KeyCode == Keys.A)
 			{
 				bNowA = bTempA = false; //bNowA and bTempA will be set to false because the key isn't pressed anymore.
-				character.Velocity = new SizeF(character.Velocity.Width + velocity, character.Velocity.Height);
+				if (bNowD)
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width + velocityLR, chars[0].Velocity.Height);
+				else
+					chars[0].Velocity = new SizeF(0, chars[0].Velocity.Height);
 			}
 			if (e.KeyCode == Keys.D)
 			{
 				bNowD = bTempD = false;
-				character.Velocity = new SizeF(character.Velocity.Width - velocity, character.Velocity.Height);
+				if (bNowA)
+					chars[0].Velocity = new SizeF(chars[0].Velocity.Width - velocityLR, chars[0].Velocity.Height);
+				else
+					chars[0].Velocity = new SizeF(0, chars[0].Velocity.Height);
 			}
 			if (e.KeyCode == Keys.Space)
 			{
