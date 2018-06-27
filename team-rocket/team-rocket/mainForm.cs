@@ -163,7 +163,7 @@ namespace team_rocket
 				{
 					if (tilesArray[i].HitboxFlag)
 					{
-						if (tilesArray[i].Rect.IntersectsWith(futureCharacter))
+						if (tilesArray[i].Rect.IntersectsWith(Rectangle.Round(futureCharacter)))
 						{
 							futureCollidedTileIndex.Add(i);
 						}
