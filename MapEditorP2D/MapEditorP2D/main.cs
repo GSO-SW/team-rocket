@@ -12,7 +12,7 @@ namespace MapEditorP2D
 {
 	public partial class main : Form
 	{
-		Tile[] tilesArray;
+		
 		
 		public main()
 		{
@@ -29,13 +29,13 @@ namespace MapEditorP2D
 			tilePanelForm tpF = new tilePanelForm();
 			tpF.Show();
 
-			tilesArray = new Tile[768];
+			controller.tilesArray = new Tile[768];
 			int counter = 0;
 			for (int i = 0; i < 24; i++)
 			{
 				for (int j = 0; j < 32; j++)
 				{
-					tilesArray[counter] = new Tile(j * 32, i * 32, 0);
+					controller.tilesArray[counter] = new Tile(j * 32, i * 32, 0);
 					counter++;
 				}
 			}
@@ -46,7 +46,7 @@ namespace MapEditorP2D
 			base.OnPaint(e);
 
 			#region Tiles
-			foreach (Tile item in tilesArray)
+			foreach (Tile item in controller.tilesArray)
 			{
 				e.Graphics.DrawImage(controller.BitmapArray[item.ImageID], item.Location);
 			}
@@ -73,9 +73,18 @@ namespace MapEditorP2D
 				int tileX = Convert.ToInt32(((double)e.Location.X / 32).ToString().Split(',')[0]);
 				int tileY = Convert.ToInt32(((double)e.Location.Y / 32).ToString().Split(',')[0]);
 				int i = tileX + tileY * 32;
-				tilesArray[i].ImageID = controller.SelectedIndexLeft;
+				if (controller.SelectedIndexLeft < controller.BitmapArray.Length)
+				{
+					controller.tilesArray[i].ImageID = controller.SelectedIndexLeft;
+				}
+				else
+				{
+					if (controller.SelectedIndexLeft == controller.BitmapArray.Length)
+						controller.startPoint = controller.tilesArray[i].Location;
+					else if (controller.SelectedIndexLeft == controller.BitmapArray.Length + 1)
+						controller.endPoint = controller.tilesArray[i].Location;
+				}
 			}
-			
 			Invalidate();
 		}
 	}
