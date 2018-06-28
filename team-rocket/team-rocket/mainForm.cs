@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.IO;
 
 namespace team_rocket
 {
@@ -27,6 +28,7 @@ namespace team_rocket
 		bool bTempSpace, bNowSpace;
 		float g; //Gravitational acceleration
 		float velocityLR, jumpVelocity; //Unit px/tick for the left or right and for the jumpspeed
+		OpenFileDialog ofd;
 
 		public main()
 		{
@@ -55,22 +57,21 @@ namespace team_rocket
 			#region Loading Textures
 			try
 			{
-				bitmapArray = new Bitmap[3];
+				bitmapArray = new Bitmap[9];
 				bitmapArray[0] = new Bitmap(Application.StartupPath + @"\gfx\default.png");
-				bitmapArray[1] = new Bitmap(Application.StartupPath + @"\gfx\background_1.png");
-				bitmapArray[2] = new Bitmap(Application.StartupPath + @"\gfx\ground_1.png");
+				bitmapArray[1] = new Bitmap(Application.StartupPath + @"\gfx\metall_background.png");
+				bitmapArray[2] = new Bitmap(Application.StartupPath + @"\gfx\metall_foreground.png");
+				bitmapArray[3] = new Bitmap(Application.StartupPath + @"\gfx\ground_1.png");
+				bitmapArray[4] = new Bitmap(Application.StartupPath + @"\gfx\dirty_water.png");
+				bitmapArray[5] = new Bitmap(Application.StartupPath + @"\gfx\door_1.png");
+				bitmapArray[6] = new Bitmap(Application.StartupPath + @"\gfx\door_2.png");
+				bitmapArray[7] = new Bitmap(Application.StartupPath + @"\gfx\door_3.png");
+				bitmapArray[8] = new Bitmap(Application.StartupPath + @"\gfx\door_4.png");
 			}
 			catch (Exception)
 			{
 				MessageBox.Show("Missing files: " + Application.StartupPath + @"\gfx\", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
-			/* List of bitmap array with id
-			 * 
-			 *  = #/i =    = name =
-			 *    0         default
-			 *    1         background_1
-			 *    2         ground_1
-			 */
 			#endregion
 
 			#region Initialize the tiles
@@ -86,13 +87,13 @@ namespace team_rocket
 			}
 			#endregion
 
-			#region Test Level
+			#region Startup Level
 			int[] imageIDs = new int[768];
 			for (int i = 0; i < imageIDs.Length; i++)
 			{
 				imageIDs[i] = 1;
-				if (i >= 710 || i == 300)
-					imageIDs[i] = 2;
+				if (i >= 704)
+					imageIDs[i] = 3;
 			}
 			testLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
 
@@ -108,9 +109,47 @@ namespace team_rocket
 			updateGraphicsTimer.Start();
 			#endregion
 
+			#region OpenFileDialog
+			ofd = new OpenFileDialog();
+			if (!Directory.Exists(Application.StartupPath + @"\maps\"))
+				Directory.CreateDirectory(Application.StartupPath + @"\maps\");
+			ofd.InitialDirectory = Application.StartupPath + @"\maps\";
+			ofd.FileOk += Ofd_FileOk_LoadMap;
+			#endregion
+
 			// Spawn Character
 			chars = new Character[1];
 			chars[0] = new Character(testLevel.StartPoint);
+		}
+
+		private void Ofd_FileOk_LoadMap(object sender, CancelEventArgs e)
+		{
+			if (File.Exists(ofd.FileName))
+			{
+				StreamReader strR = new StreamReader(ofd.FileName);
+				string s = strR.ReadLine();
+				Point startPoint = new Point
+				{
+					X = Convert.ToInt32(s.Split(',')[0]),
+					Y = Convert.ToInt32(s.Split(',')[1])
+				};
+				s = strR.ReadLine();
+				Point endPoint = new Point
+				{
+					X = Convert.ToInt32(s.Split(',')[0]),
+					Y = Convert.ToInt32(s.Split(',')[1])
+				};
+				int[] ImageIDs = new int[768];
+				for (int i = 0; i < ImageIDs.Length; i++)
+				{
+					ImageIDs[i] = Convert.ToInt32(strR.ReadLine());
+				}
+
+				strR.Close();
+				loadLevel(new Level(ImageIDs, startPoint, endPoint));
+			}
+
+			
 		}
 
 		/// <summary>
@@ -126,15 +165,23 @@ namespace team_rocket
 				{
 					case 0:
 					case 1:
+					case 4:
+					case 5:
+					case 6:
+					case 7:
+					case 8:
 						tilesArray[i].HitboxFlag = false;
 						break;
 					case 2:
+					case 3:
 						tilesArray[i].HitboxFlag = true;
 						break;
 					default:
 						break;
 				}
 			}
+			if (chars != null)
+				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
 		}
 
 		/// <summary>
@@ -323,6 +370,10 @@ namespace team_rocket
 			if (e.KeyCode == Keys.Space)
 			{
 				bNowSpace = bTempSpace = false;
+			}
+			if (e.KeyCode == Keys.O)
+			{
+				ofd.ShowDialog();
 			}
 		}
 	}
