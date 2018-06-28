@@ -20,23 +20,6 @@ namespace team_rocket
 
 		#region Properties
 		/// <summary>
-		/// Sets and returns the location of the character as a Point object.
-		/// </summary>
-
-		/// <summary>
-		/// Returns the Sprite-Array, which will represent the walking animation of the character later on.
-		/// </summary>
-		public Bitmap[] Sprite_right
-		{
-			get { return sprite_right; }
-		}
-
-        public Bitmap[] Sprite_left
-        {
-            get { return sprite_left; }
-        }
-
-		/// <summary>
 		/// Returns the velocity-vector for this Character.
 		/// </summary>
 		public SizeF Velocity
