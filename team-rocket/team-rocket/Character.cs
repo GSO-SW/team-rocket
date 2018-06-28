@@ -144,22 +144,24 @@ namespace team_rocket
             IsHeadingRight = true; // The character is facing right at the start
 
             // Load the sprites for movement
+            Bitmap walking_0 = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
+            Bitmap walking_1 = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
+            Bitmap walking_2 = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\tile_01.png");
+
             sprite_right = new Bitmap[3];
-            sprite_right[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
-            sprite_right[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
-            sprite_right[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\tile_01.png");
+            sprite_right[0] = walking_0;
+            sprite_right[1] = walking_1;
+            sprite_right[2] = walking_2;
 
             // Do the same here but flip the images
+            walking_0.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            walking_1.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            walking_2.RotateFlip(RotateFlipType.RotateNoneFlipX);
+
             sprite_left = new Bitmap[3];
-            Bitmap mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
-            mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            sprite_left[0] = mirrored;
-            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
-            mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            sprite_left[1] = mirrored;
-            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\tile_01.png");
-            mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            sprite_left[2] = mirrored;
+            sprite_left[0] = walking_0;
+            sprite_left[1] = walking_1;
+            sprite_left[2] = walking_2;
         }
 
         /// <summary>
