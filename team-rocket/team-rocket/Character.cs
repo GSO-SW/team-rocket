@@ -75,7 +75,7 @@ namespace team_rocket
 			set { rect = value; }
 		}
 
-		public PointF location
+		public PointF Location
 		{
 			get { return rect.Location; }
 			set { rect.Location = value; }
@@ -124,21 +124,26 @@ namespace team_rocket
                 }
             }
         }
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// Provides a class, which will represent the players character.
-		/// </summary>
-		/// <param name="point">Sets the initial location of the character with a PointF structure.</param>
-		public Character(PointF point)
-		{
-			rect.Location = point; //StartPos
-			rect.Size = new SizeF(32, 64); //Hitbox Size
-			velocity = new SizeF(0f, 0f);
+        /// <summary>
+        /// Provides a class, which will represent the players character.
+        /// </summary>
+        /// <param name="point">Sets the initial location of the character with a PointF structure.</param>
+        public Character(PointF point)
+        {
+            rect.Location = point; //StartPos
+            rect.Size = new SizeF(32, 64); //Hitbox Size
+            velocity = new SizeF(0f, 0f);
             currentSpriteIndex = 0; // Index starts at 0 for the first sprite of the animation
             IsMovingLR = false;
             IsJumping = false;
             IsHeadingRight = true;
+
+            sprite = new Bitmap[3];
+            sprite[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
+            sprite[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
+            sprite[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\tile_01.png");
         }
 
         /// <summary>

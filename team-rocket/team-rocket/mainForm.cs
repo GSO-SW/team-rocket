@@ -254,8 +254,9 @@ namespace team_rocket
             {
                 e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
             }
-            e.Graphics.FillRectangle(Brushes.Blue, character.RectF);
-            e.Graphics.DrawString(character.RectF.Location.ToString(), Font, Brushes.Black, new Point(100, 100));
+            //e.Graphics.FillRectangle(Brushes.Blue, character.RectF);
+            //e.Graphics.DrawString(character.RectF.Location.ToString(), Font, Brushes.Black, new Point(100, 100));
+            e.Graphics.DrawImage(character.CurrentSprite, character.Location);
         }
 
         /// <summary>
