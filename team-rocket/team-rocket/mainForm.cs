@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
 
@@ -21,7 +20,7 @@ namespace team_rocket
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
 		Bitmap[] bitmapArray;
-		Level testLevel;
+		Level loadedLevel;
 		Character[] chars;
 		bool bTempA, bNowA;
 		bool bTempD, bNowD;
@@ -59,8 +58,8 @@ namespace team_rocket
 			{
 				bitmapArray = new Bitmap[9];
 				bitmapArray[0] = new Bitmap(Application.StartupPath + @"\gfx\default.png");
-				bitmapArray[1] = new Bitmap(Application.StartupPath + @"\gfx\metall_background.png");
-				bitmapArray[2] = new Bitmap(Application.StartupPath + @"\gfx\metall_foreground.png");
+				bitmapArray[1] = new Bitmap(Application.StartupPath + @"\gfx\metall_foreground.png");
+				bitmapArray[2] = new Bitmap(Application.StartupPath + @"\gfx\metall_background.png");
 				bitmapArray[3] = new Bitmap(Application.StartupPath + @"\gfx\ground_1.png");
 				bitmapArray[4] = new Bitmap(Application.StartupPath + @"\gfx\dirty_water.png");
 				bitmapArray[5] = new Bitmap(Application.StartupPath + @"\gfx\door_1.png");
@@ -91,13 +90,13 @@ namespace team_rocket
 			int[] imageIDs = new int[768];
 			for (int i = 0; i < imageIDs.Length; i++)
 			{
-				imageIDs[i] = 1;
+				imageIDs[i] = 2;
 				if (i >= 704)
 					imageIDs[i] = 3;
 			}
-			testLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
+			loadedLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
 
-			loadLevel(testLevel);
+			loadLevel(loadedLevel);
 			#endregion
 
 			#region Initialize Frame Timer
@@ -114,12 +113,13 @@ namespace team_rocket
 			if (!Directory.Exists(Application.StartupPath + @"\maps\"))
 				Directory.CreateDirectory(Application.StartupPath + @"\maps\");
 			ofd.InitialDirectory = Application.StartupPath + @"\maps\";
+			ofd.Filter = "*.map |*.map";
 			ofd.FileOk += Ofd_FileOk_LoadMap;
 			#endregion
 
 			// Spawn Character
 			chars = new Character[1];
-			chars[0] = new Character(testLevel.StartPoint);
+			chars[0] = new Character(loadedLevel.StartPoint);
 		}
 
 		private void Ofd_FileOk_LoadMap(object sender, CancelEventArgs e)
@@ -144,12 +144,10 @@ namespace team_rocket
 				{
 					ImageIDs[i] = Convert.ToInt32(strR.ReadLine());
 				}
-
 				strR.Close();
+				loadedLevel = new Level(ImageIDs, startPoint, endPoint);
 				loadLevel(new Level(ImageIDs, startPoint, endPoint));
 			}
-
-			
 		}
 
 		/// <summary>
@@ -164,7 +162,7 @@ namespace team_rocket
 				switch (tilesArray[i].ImageID)
 				{
 					case 0:
-					case 1:
+					case 2:
 					case 4:
 					case 5:
 					case 6:
@@ -172,7 +170,7 @@ namespace team_rocket
 					case 8:
 						tilesArray[i].HitboxFlag = false;
 						break;
-					case 2:
+					case 1:
 					case 3:
 						tilesArray[i].HitboxFlag = true;
 						break;
@@ -199,7 +197,7 @@ namespace team_rocket
 					velocity.Height += g;
 
 				if (!ClientRectangle.IntersectsWith(Rectangle.Round(character)))
-					character.Location = testLevel.StartPoint;
+					character.Location = loadedLevel.StartPoint;
 
 				RectangleF futureCharacter = new RectangleF(character.Location + velocity, character.Size);
 
