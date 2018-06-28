@@ -28,6 +28,10 @@ namespace team_rocket
 		float g; //Gravitational acceleration
 		float velocityLR, jumpVelocity; //Unit px/tick for the left or right and for the jumpspeed
 		OpenFileDialog ofd;
+		string pos; //DEBUGGING
+		Point portal; //DEBUGING
+		Portal bluePortal;
+		Portal orangePortal;
 
 		public main()
 		{
@@ -46,11 +50,15 @@ namespace team_rocket
 			velocityLR = 5;
 			jumpVelocity = 15;
 			g = 1f;
+			portal = Point.Empty;
+			bluePortal = new Portal();
+			orangePortal = new Portal();
 			#endregion
 
 			#region Subscribe events
 			KeyDown += OnKeyDown;
 			KeyUp += OnKeyUp;
+			MouseClick += onMouseClick;
 			#endregion
 
 			#region Loading Textures
@@ -66,8 +74,11 @@ namespace team_rocket
 				bitmapArray[6] = new Bitmap(Application.StartupPath + @"\gfx\door_2.png");
 				bitmapArray[7] = new Bitmap(Application.StartupPath + @"\gfx\door_3.png");
 				bitmapArray[8] = new Bitmap(Application.StartupPath + @"\gfx\door_4.png");
+
+				bluePortal.Image = new Bitmap(Application.StartupPath + @"\gfx\blue_portal.png");
+				orangePortal.Image = new Bitmap(Application.StartupPath + @"\gfx\orange_portal.png");
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				MessageBox.Show("Missing files: " + Application.StartupPath + @"\gfx\", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
@@ -114,7 +125,7 @@ namespace team_rocket
 				Directory.CreateDirectory(Application.StartupPath + @"\maps\");
 			ofd.InitialDirectory = Application.StartupPath + @"\maps\";
 			ofd.Filter = "*.map |*.map";
-			ofd.FileOk += Ofd_FileOk_LoadMap;
+			ofd.FileOk += OnFileOKofd;
 			#endregion
 
 			// Spawn Character
@@ -122,7 +133,49 @@ namespace team_rocket
 			chars[0] = new Character(loadedLevel.StartPoint);
 		}
 
-		private void Ofd_FileOk_LoadMap(object sender, CancelEventArgs e)
+		private void onMouseClick(object sender, MouseEventArgs e)
+		{
+			//pos = e.Location.ToString();
+			//f(x) = m*x+b
+			//mouse.y = mouse.x
+			//player.y = player.x
+			//m = deltaY/deltaX
+			float playerX = chars[0].RectF.X + chars[0].RectF.Width / 2;
+			float playerY = chars[0].RectF.Y + chars[0].RectF.Height / 2;
+			float m = (playerY - e.Location.Y) / (playerX - e.Location.X);
+			if (!float.IsInfinity(m) && !float.IsNaN(m))
+			{
+				float b = playerY + -m * playerX;
+				pos = "f(x) = " + m + " * x + " + b;
+				PointF pointToTest = new PointF(playerX, playerY);
+				int x = Convert.ToInt32(playerX);
+				int j = 0;
+				bool hit = false;
+				if (playerX < e.Location.X) //rechts vom spieler
+					j = 1;
+				else if (playerX > e.Location.X)
+					j = -1;
+				else if (playerX == e.Location.X)
+					return;
+
+				while ((x < ClientSize.Width && x > 0) && !hit)
+				{
+					pointToTest = new PointF(x, m * x + b);
+					foreach (Tile item in tilesArray)
+					{
+						if (item.HitboxFlag && item.Rect.Contains(Point.Round(pointToTest)))
+						{
+							hit = true;
+						}
+					}
+					x += j;
+				}
+				if (x != 0 && x != ClientSize.Width)
+					portal = Point.Round(new PointF(x, m * x + b));
+			}
+		}
+
+		private void OnFileOKofd(object sender, CancelEventArgs e)
 		{
 			if (File.Exists(ofd.FileName))
 			{
@@ -298,6 +351,10 @@ namespace team_rocket
 			{
 				e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
 			}
+			e.Graphics.DrawString(pos, new Font(FontFamily.GenericMonospace, 20, FontStyle.Bold), Brushes.White, new Point(0, 0));
+			e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
+			if (portal != Point.Empty)
+				e.Graphics.DrawRectangle(Pens.Orange, new Rectangle(portal, new Size(10, 10)));
 		}
 
 		/// <summary>
