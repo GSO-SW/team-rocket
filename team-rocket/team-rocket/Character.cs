@@ -9,7 +9,8 @@ namespace team_rocket
 {
 	class Character
 	{
-		private Bitmap[] sprite;
+		private Bitmap[] sprite_right;
+        private Bitmap[] sprite_left;
 		private SizeF velocity;
 		private RectangleF rect;
         private int currentSpriteIndex;
@@ -25,10 +26,15 @@ namespace team_rocket
 		/// <summary>
 		/// Returns the Sprite-Array, which will represent the walking animation of the character later on.
 		/// </summary>
-		public Bitmap[] Sprite
+		public Bitmap[] Sprite_right
 		{
-			get { return sprite; }
+			get { return sprite_right; }
 		}
+
+        public Bitmap[] Sprite_left
+        {
+            get { return sprite_left; }
+        }
 
 		/// <summary>
 		/// Returns the velocity-vector for this Character.
@@ -91,13 +97,11 @@ namespace team_rocket
                 // Flip the sprite when the character is facing left
                 if(!IsHeadingRight)
                 {
-                    Bitmap mirrored = sprite[currentSpriteIndex];
-                    mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                    return mirrored;
+                    return sprite_left[currentSpriteIndex];
                 }
                 else
                 {
-                    return sprite[currentSpriteIndex];
+                    return sprite_right[currentSpriteIndex];
                 }
             }
         }
@@ -153,10 +157,15 @@ namespace team_rocket
             IsJumping = false;
             IsHeadingRight = true;
 
-            sprite = new Bitmap[3];
-            sprite[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
-            sprite[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
-            sprite[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\tile_01.png");
+            sprite_right = new Bitmap[3];
+            sprite_right[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
+            sprite_right[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
+            sprite_right[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\tile_01.png");
+
+            sprite_left = new Bitmap[3];
+            sprite_left[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_left.png");
+            sprite_left[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\default.png");
+            sprite_left[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\tile_01.png");
         }
 
         /// <summary>
