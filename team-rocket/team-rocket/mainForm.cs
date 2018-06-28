@@ -17,6 +17,9 @@ namespace team_rocket
 		/// - jumping is spamable
 		/// 
 
+		/// TODO
+		/// onPaint modifizieren, 1. hintergrund, 2.characters, 3. vordergrund
+
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
 		Bitmap[] bitmapArray;
@@ -26,10 +29,8 @@ namespace team_rocket
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
 		float g; //Gravitational acceleration
-		float velocityLR, jumpVelocity; //Unit px/tick for the left or right and for the jumpspeed
+		float velocityLR, jumpVelocity; //Unit: px/tick for the left or right and for the jumpspeed
 		OpenFileDialog ofd;
-		string pos; //DEBUGGING
-		Point portal; //DEBUGING
 		Portal bluePortal;
 		Portal orangePortal;
 
@@ -50,7 +51,6 @@ namespace team_rocket
 			velocityLR = 5;
 			jumpVelocity = 15;
 			g = 1f;
-			portal = Point.Empty;
 			bluePortal = new Portal();
 			orangePortal = new Portal();
 			#endregion
@@ -78,7 +78,7 @@ namespace team_rocket
 				bluePortal.Image = new Bitmap(Application.StartupPath + @"\gfx\blue_portal.png");
 				orangePortal.Image = new Bitmap(Application.StartupPath + @"\gfx\orange_portal.png");
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				MessageBox.Show("Missing files: " + Application.StartupPath + @"\gfx\", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
@@ -133,6 +133,11 @@ namespace team_rocket
 			chars[0] = new Character(loadedLevel.StartPoint);
 		}
 
+		/// <summary>
+		/// Event-Handler for Mouse Clicks. Used for the protal shooting.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void onMouseClick(object sender, MouseEventArgs e)
 		{
 			//pos = e.Location.ToString();
@@ -145,17 +150,17 @@ namespace team_rocket
 			float m = (playerY - e.Location.Y) / (playerX - e.Location.X);
 			if (!float.IsInfinity(m) && !float.IsNaN(m))
 			{
-				float b = playerY + -m * playerX;
-				pos = "f(x) = " + m + " * x + " + b;
+				float b = playerY - m * playerX;
 				PointF pointToTest = new PointF(playerX, playerY);
 				int x = Convert.ToInt32(playerX);
 				int j = 0;
 				bool hit = false;
+
 				if (playerX < e.Location.X) //rechts vom spieler
 					j = 1;
-				else if (playerX > e.Location.X)
+				else if (playerX > e.Location.X)//links vom spieler
 					j = -1;
-				else if (playerX == e.Location.X)
+				else if (playerX == e.Location.X)//genau über oder unterm spieler
 					return;
 
 				while ((x < ClientSize.Width && x > 0) && !hit)
@@ -170,11 +175,26 @@ namespace team_rocket
 					}
 					x += j;
 				}
+
 				if (x != 0 && x != ClientSize.Width)
-					portal = Point.Round(new PointF(x, m * x + b));
+				{
+					if (e.Button == MouseButtons.Left)
+					{
+						bluePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
+					}
+					else if (e.Button == MouseButtons.Right)
+					{
+						orangePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
+					}
+				}
 			}
 		}
 
+		/// <summary>
+		/// OpenFileDialog FileOK-EventHandler. Used to load the chosen map.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnFileOKofd(object sender, CancelEventArgs e)
 		{
 			if (File.Exists(ofd.FileName))
@@ -351,10 +371,9 @@ namespace team_rocket
 			{
 				e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
 			}
-			e.Graphics.DrawString(pos, new Font(FontFamily.GenericMonospace, 20, FontStyle.Bold), Brushes.White, new Point(0, 0));
 			e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
-			if (portal != Point.Empty)
-				e.Graphics.DrawRectangle(Pens.Orange, new Rectangle(portal, new Size(10, 10)));
+			e.Graphics.DrawImage(bluePortal.Image, bluePortal.Rect.Location);
+			e.Graphics.DrawImage(orangePortal.Image, orangePortal.Rect.Location);
 		}
 
 		/// <summary>
