@@ -86,7 +86,20 @@ namespace team_rocket
         /// </summary>
         public Bitmap CurrentSprite
         {
-            get { return sprite[currentSpriteIndex]; }
+            get
+            {
+                // Flip the sprite when the character is facing left
+                if(!IsHeadingRight)
+                {
+                    Bitmap mirrored = sprite[currentSpriteIndex];
+                    mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                    return mirrored;
+                }
+                else
+                {
+                    return sprite[currentSpriteIndex];
+                }
+            }
         }
 
         /// <summary>
