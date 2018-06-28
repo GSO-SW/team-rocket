@@ -64,6 +64,9 @@ namespace team_rocket
 			set { rect = value; }
 		}
 
+        /// <summary>
+        /// The characters current position saved as a PointF.
+        /// </summary>
 		public PointF Location
 		{
 			get { return rect.Location; }
@@ -136,9 +139,9 @@ namespace team_rocket
             rect.Size = new SizeF(32, 64); //Hitbox Size
             velocity = new SizeF(0f, 0f);
             currentSpriteIndex = 0; // Index starts at 0 for the first sprite of the animation
-            IsMovingLR = false;
-            IsJumping = false;
-            IsHeadingRight = true;
+            IsMovingLR = false; // The character isn't moving at the start
+            IsJumping = false; // The character isn't jumping at the start
+            IsHeadingRight = true; // The character is facing right at the start
 
             // Load the sprites for movement
             sprite_right = new Bitmap[3];
