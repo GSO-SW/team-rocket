@@ -33,6 +33,7 @@ namespace team_rocket
 		OpenFileDialog ofd;
 		Portal bluePortal;
 		Portal orangePortal;
+		string s = "J";
 
 		public main()
 		{
@@ -180,18 +181,18 @@ namespace team_rocket
 						}
 					}
 				}
-
+				s = tilesArray[firstHittedTIleIndex].Rect.Location.ToString() + " ||| " + "{" + x + "," + (m * x + b) + "}";
 				if (x != 0 && x != ClientSize.Width)
 				{
 					if (e.Button == MouseButtons.Left)
 					{
 						//bluePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
-						bluePortal.Rect = new Rectangle(tilesArray[firstHittedTIleIndex].Rect.Location, new Size(0, 0));
+						bluePortal.Rect = new Rectangle(tilesArray[firstHittedTIleIndex].Rect.Location, new Size(32, 32));
 					}
 					else if (e.Button == MouseButtons.Right)
 					{
 						//orangePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
-						orangePortal.Rect = new Rectangle(tilesArray[firstHittedTIleIndex].Rect.Location, new Size(0, 0));
+						orangePortal.Rect = new Rectangle(tilesArray[firstHittedTIleIndex].Rect.Location, new Size(32, 32));
 					}
 				}
 			}
@@ -279,83 +280,99 @@ namespace team_rocket
 				if (!ClientRectangle.IntersectsWith(Rectangle.Round(character)))
 					character.Location = loadedLevel.StartPoint;
 
+				bool collideWitBluePortal = false;
+				bool collideWithOrangePortal = false;
+
+
+				if (bluePortal.Rect.IntersectsWith(Rectangle.Round(character)))
+				{
+					character.Location = Point.Add(orangePortal.Rect.Location, new Size(-33, 0));
+				}
+				else if (orangePortal.Rect.IntersectsWith(Rectangle.Round(character)))
+				{
+
+				}
+				
+
 				RectangleF futureCharacter = new RectangleF(character.Location + velocity, character.Size);
 
 				#region Detect the collision in the next tick
-				List<int> futureCollidedTileIndex = new List<int>();
-
-				for (int i = 0; i < tilesArray.Length; i++)
+				if (!bluePortal.Rect.IntersectsWith(Rectangle.Round(futureCharacter)) && !orangePortal.Rect.IntersectsWith(Rectangle.Round(futureCharacter)))
 				{
-					if (tilesArray[i].HitboxFlag)
+					List<int> futureCollidedTileIndex = new List<int>();
+
+					for (int i = 0; i < tilesArray.Length; i++)
 					{
-						if (tilesArray[i].Rect.IntersectsWith(Rectangle.Round(futureCharacter)))
+						if (tilesArray[i].HitboxFlag)
 						{
-							futureCollidedTileIndex.Add(i);
+							if (tilesArray[i].Rect.IntersectsWith(Rectangle.Round(futureCharacter)))
+							{
+								futureCollidedTileIndex.Add(i);
+							}
 						}
 					}
+					#endregion
+
+					#region Detect in which direction the collision will occure and calculating the borders
+					// player position in tiles
+					Point playerTile = new Point(Convert.ToInt32(Math.Round(character.X / 32)), Convert.ToInt32(Math.Round(character.Y / 32)));
+					// vars for saving the "border" where the player has to hit
+					float heightBorder = -1;
+					float widthBorder = -1;
+
+					foreach (int i in futureCollidedTileIndex)
+					{
+						// detecting in which direction the future hitted tile is
+						Point p = Point.Subtract(new Point(Convert.ToInt32(tilesArray[i].Rect.X / 32), Convert.ToInt32(tilesArray[i].Rect.Y / 32)), (Size)playerTile);
+
+						if (p.X == -1 || p.X == 0 || p.X == 1) //If the tile is above or under the player
+						{
+							if (p.Y == 2) //under the player
+								heightBorder = tilesArray[i].Rect.Y; //set the height border at the top edge of the tile
+							else if (p.Y == -1) // above the player
+								heightBorder = tilesArray[i].Rect.Y + tilesArray[i].Rect.Height; //set the height border at the bottom edge of the tile
+						}
+
+						if (p.Y == 0 || p.Y == 1) //If the tile is left or right
+						{
+							if (p.X == 1) //right of the player
+								widthBorder = tilesArray[i].Rect.X; // set the left edge as width border
+							else if (p.X == -1) //left of the player
+								widthBorder = tilesArray[i].Rect.X + tilesArray[i].Rect.Width;//set the right edge as width border
+						}
+
+					}
+					#endregion
+
+					#region Apply the borders to the velocity of the player
+					if (futureCollidedTileIndex.Count > 0)
+					{
+						if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
+						{
+							//Oberkante der kachel muss betrachtet werden
+							if (heightBorder < (character.Y + character.Height))
+								character.Y = character.Y - ((character.Y + character.Height) - heightBorder);
+							velocity.Height = heightBorder - (character.Y + character.Height);
+						}
+						else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
+						{
+							//Unterkante der kachel muss betrachtet werden
+							velocity.Height = heightBorder - character.Y;
+						}
+
+						if (velocity.Width > 0 && widthBorder != -1) //Meaning movement to the right
+						{
+							//linke seite der kachel muss betrachtet werden
+							velocity.Width = widthBorder - (character.X + character.Width);
+						}
+						else if (velocity.Width < 0 && widthBorder != -1) //Meaning movement to the left
+						{
+							//rechte seite der Kachel muss betrachtet werden
+							velocity.Width = widthBorder - character.X;
+						}
+					}
+					#endregion
 				}
-				#endregion
-
-				#region Detect in which direction the collision will occure and calculating the borders
-				// player position in tiles
-				Point playerTile = new Point(Convert.ToInt32(Math.Round(character.X / 32)), Convert.ToInt32(Math.Round(character.Y / 32)));
-				// vars for saving the "border" where the player has to hit
-				float heightBorder = -1;
-				float widthBorder = -1;
-
-				foreach (int i in futureCollidedTileIndex)
-				{
-					// detecting in which direction the future hitted tile is
-					Point p = Point.Subtract(new Point(Convert.ToInt32(tilesArray[i].Rect.X / 32), Convert.ToInt32(tilesArray[i].Rect.Y / 32)), (Size)playerTile);
-
-					if (p.X == -1 || p.X == 0 || p.X == 1) //If the tile is above or under the player
-					{
-						if (p.Y == 2) //under the player
-							heightBorder = tilesArray[i].Rect.Y; //set the height border at the top edge of the tile
-						else if (p.Y == -1) // above the player
-							heightBorder = tilesArray[i].Rect.Y + tilesArray[i].Rect.Height; //set the height border at the bottom edge of the tile
-					}
-
-					if (p.Y == 0 || p.Y == 1) //If the tile is left or right
-					{
-						if (p.X == 1) //right of the player
-							widthBorder = tilesArray[i].Rect.X; // set the left edge as width border
-						else if (p.X == -1) //left of the player
-							widthBorder = tilesArray[i].Rect.X + tilesArray[i].Rect.Width;//set the right edge as width border
-					}
-
-				}
-				#endregion
-
-				#region Apply the borders to the velocity of the player
-				if (futureCollidedTileIndex.Count > 0)
-				{
-					if (velocity.Height > 0 && heightBorder != -1) //Meaning falling
-					{
-						//Oberkante der kachel muss betrachtet werden
-						if (heightBorder < (character.Y + character.Height))
-							character.Y = character.Y - ((character.Y + character.Height) - heightBorder);
-						velocity.Height = heightBorder - (character.Y + character.Height);
-					}
-					else if (velocity.Height < 0 && heightBorder != -1) //Meaning jumping
-					{
-						//Unterkante der kachel muss betrachtet werden
-						velocity.Height = heightBorder - character.Y;
-					}
-
-					if (velocity.Width > 0 && widthBorder != -1) //Meaning movement to the right
-					{
-						//linke seite der kachel muss betrachtet werden
-						velocity.Width = widthBorder - (character.X + character.Width);
-					}
-					else if (velocity.Width < 0 && widthBorder != -1) //Meaning movement to the left
-					{
-						//rechte seite der Kachel muss betrachtet werden
-						velocity.Width = widthBorder - character.X;
-					}
-				}
-				#endregion
-
 				character.Location += velocity;
 				chars[j].Velocity = velocity;
 				chars[j].RectF = character;
@@ -381,6 +398,7 @@ namespace team_rocket
 			e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
 			e.Graphics.DrawImage(bluePortal.Image, bluePortal.Rect.Location);
 			e.Graphics.DrawImage(orangePortal.Image, orangePortal.Rect.Location);
+			e.Graphics.DrawString(s, new Font(FontFamily.GenericMonospace, 20, FontStyle.Bold), Brushes.Black, new PointF(0, 0));
 		}
 
 		/// <summary>
