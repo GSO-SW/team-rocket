@@ -155,6 +155,7 @@ namespace team_rocket
 				int x = Convert.ToInt32(playerX);
 				int j = 0;
 				bool hit = false;
+				int firstHittedTIleIndex = -1;
 
 				if (playerX < e.Location.X) //rechts vom spieler
 					j = 1;
@@ -165,26 +166,32 @@ namespace team_rocket
 
 				while ((x < ClientSize.Width && x > 0) && !hit)
 				{
+					x += j;
 					pointToTest = new PointF(x, m * x + b);
-					foreach (Tile item in tilesArray)
+					for (int i = 0; i < tilesArray.Length; i++)
 					{
-						if (item.HitboxFlag && item.Rect.Contains(Point.Round(pointToTest)))
+						if (tilesArray[i].HitboxFlag && tilesArray[i].Rect.Contains(Point.Round(pointToTest)))
 						{
-							hit = true;
+							if (!hit)
+							{
+								hit = true;
+								firstHittedTIleIndex = i;
+							}
 						}
 					}
-					x += j;
 				}
 
 				if (x != 0 && x != ClientSize.Width)
 				{
 					if (e.Button == MouseButtons.Left)
 					{
-						bluePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
+						//bluePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
+						bluePortal.Rect = new Rectangle(tilesArray[firstHittedTIleIndex].Rect.Location, new Size(0, 0));
 					}
 					else if (e.Button == MouseButtons.Right)
 					{
-						orangePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
+						//orangePortal.Rect = new Rectangle(new Point(x, Convert.ToInt32(m * x + b)), new Size(0, 0));
+						orangePortal.Rect = new Rectangle(tilesArray[firstHittedTIleIndex].Rect.Location, new Size(0, 0));
 					}
 				}
 			}
