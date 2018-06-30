@@ -25,9 +25,12 @@ namespace team_rocket
 		bool bTempA, bNowA;
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
+        bool currentlyInMenu;
 		float g; //Gravitational acceleration
 		float velocityLR, jumpVelocity; //Unit px/tick for the left or right and for the jumpspeed
 		OpenFileDialog ofd;
+        Button startGameButton;
+        Button quitGameButton;
 
 		public main()
 		{
@@ -43,6 +46,7 @@ namespace team_rocket
 
 			#region initialize vars
 			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
+            currentlyInMenu = true;
 			velocityLR = 5;
 			jumpVelocity = 15;
 			g = 1f;
@@ -105,7 +109,6 @@ namespace team_rocket
 				Interval = 20
 			};
 			updateGraphicsTimer.Tick += OnTimerTick;
-			updateGraphicsTimer.Start();
 			#endregion
 
 			#region OpenFileDialog
@@ -290,14 +293,36 @@ namespace team_rocket
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			base.OnPaint(e);
-			foreach (Tile item in tilesArray)
-			{
-				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
-			}
-			foreach (Character item in chars)
-			{
-				e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
-			}
+            if (!currentlyInMenu)
+            {
+                foreach (Tile item in tilesArray)
+                {
+                    e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+                }
+                foreach (Character item in chars)
+                {
+                    e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
+                }
+            }
+            else
+            {
+                startGameButton = new Button(new PointF(ClientSize.Width / 2, 100));
+                startGameButton.Text = "Start Game";
+                startGameButton.Size = new SizeF(100, 40);
+                quitGameButton = new Button(new PointF(ClientSize.Width / 2, 200));
+                quitGameButton.Text = "Quit Game";
+                quitGameButton.Size = new SizeF(100, 40);
+
+                e.Graphics.FillRectangle(Brushes.Gray, startGameButton.Body);
+                e.Graphics.FillRectangle(Brushes.Gray, quitGameButton.Body);
+
+                StringFormat format = new StringFormat();
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Center;
+
+                e.Graphics.DrawString(startGameButton.Text, Font, Brushes.Black, new PointF(startGameButton.Location.X + startGameButton.Body.Width / 2, startGameButton.Location.Y + startGameButton.Body.Height / 2), format);
+                e.Graphics.DrawString(quitGameButton.Text, Font, Brushes.Black, new PointF(quitGameButton.Location.X + quitGameButton.Body.Width / 2, quitGameButton.Location.Y + quitGameButton.Body.Height / 2), format);
+            }
 		}
 
 		/// <summary>

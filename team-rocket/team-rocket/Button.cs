@@ -52,12 +52,21 @@ namespace team_rocket
             get { return Body.Location; }
             set { body.Location = value; }
         }
+
+        /// <summary>
+        /// The size of the buttons body.
+        /// </summary>
+        public SizeF Size
+        {
+            get { return Body.Size; }
+            set { body.Size = value; }
+        }
         #endregion
 
         /// <summary>
         /// A standard button with 64*32 px, a gray body and no text.
         /// </summary>
-        /// <param name="position"></param>
+        /// <param name="position">Sets the location of the button.</param>
         public Button(PointF position)
         {
             RectangleF rect = new RectangleF();
