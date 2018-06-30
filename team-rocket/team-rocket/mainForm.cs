@@ -115,11 +115,7 @@ namespace team_rocket
 			ofd.InitialDirectory = Application.StartupPath + @"\maps\";
 			ofd.Filter = "*.map |*.map";
 			ofd.FileOk += Ofd_FileOk_LoadMap;
-			#endregion
-
-			// Spawn Character
-			chars = new Character[1];
-			chars[0] = new Character(loadedLevel.StartPoint);
+			#endregion	
 		}
 
 		private void Ofd_FileOk_LoadMap(object sender, CancelEventArgs e)
@@ -180,7 +176,11 @@ namespace team_rocket
 			}
 			if (chars != null)
 				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
-		}
+
+            // Spawn Character
+            chars = new Character[1];
+            chars[0] = new Character(lvl.StartPoint);
+        }
 
 		/// <summary>
 		/// Event-Handler for the Graphic-Update-Timer-Tick
