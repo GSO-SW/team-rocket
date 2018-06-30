@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Button.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="mainForm.cs">
