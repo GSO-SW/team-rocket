@@ -4,19 +4,20 @@ namespace team_rocket
 {
 	class Portal
 	{
-		private Rectangle rect;
+		private Rectangle hitbox;
+		private Point imageLocation;
 		private Bitmap image;
 		private int alignment;
 		private bool imageRotated;
 
 		#region Prperties
 		/// <summary>
-		/// Contains the location and the hitbox from the Portal.
+		/// Contains the hitbox from the Portal.
 		/// </summary>
-		public Rectangle Rect
+		public Rectangle Hitbox
 		{
-			get { return rect; }
-			set { rect = value; }
+			get { return hitbox; }
+			set { hitbox = value; }
 		}
 
 		/// <summary>
@@ -54,13 +55,23 @@ namespace team_rocket
 				imageRotated = value;
 			}
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public Point ImageLocation
+		{
+			get { return imageLocation; }
+			set { imageLocation = value; }
+		}
 		#endregion
 
 		public Portal()
 		{
-			rect = Rectangle.Empty;
+			hitbox = Rectangle.Empty;
 			alignment = -1;
 			imageRotated = false;
+			imageLocation = Point.Empty;
 		}
 	}
 }

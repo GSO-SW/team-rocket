@@ -13,13 +13,6 @@ namespace team_rocket
 {
 	public partial class main : Form
 	{
-		/// BUGS:
-		/// - jumping is spamable
-		/// 
-
-		/// TODO
-		/// onPaint modifizieren, 1. hintergrund, 2.characters, 3. vordergrund
-
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
 		Bitmap[] bitmapArray;
@@ -29,7 +22,9 @@ namespace team_rocket
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
 		float g; //Gravitational acceleration
-		float velocityLR, jumpVelocity; //Unit: px/tick for the left or right and for the jumpspeed
+		float velocityLR;
+		float jumpVelocity; //Unit: px/tick for the left or right and for the jumpspeed
+		float verticalVelocityLastTick;
 		OpenFileDialog ofd;
 		Portal bluePortal;
 		Portal orangePortal;
@@ -50,6 +45,7 @@ namespace team_rocket
 			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
 			velocityLR = 5;
 			jumpVelocity = 15;
+			verticalVelocityLastTick = 0;
 			g = 1f;
 			bluePortal = new Portal();
 			orangePortal = new Portal();
@@ -218,18 +214,20 @@ namespace team_rocket
 				#endregion
 
 				#region Calculating the alignment of the portal
-				if (firstHittedTileIndexX == firstHittedTileIndexY && x >= 0 && x <= ClientSize.Width && y >= 0 && y <= ClientSize.Height)
+				if (firstHittedTileIndexX != -1 && firstHittedTileIndexX == firstHittedTileIndexY && x >= 0 && x <= ClientSize.Width && y >= 0 && y <= ClientSize.Height)
 				{
 					Point newPortalPosition = tilesArray[firstHittedTileIndexX].Rect.Location;
-					Size newPortalSize = new Size(32, 64);
+					Point newPortalHitboxPosition = tilesArray[firstHittedTileIndexX].Rect.Location;
+					Size newPortalHitboxSize = new Size(32, 64);
 					Point diffMousePositionHittedTile = Point.Subtract(new Point(x, y), (Size)tilesArray[firstHittedTileIndexX].Rect.Location);
 					bool flipImage = false;
 					int alignment = -1;
+
 					if (diffMousePositionHittedTile.X == 0) //At the left side of a block
 					{
 						newPortalPosition.X -= 4;
 						alignment = 0;
-						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag 
+						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag
 							|| tilesArray[firstHittedTileIndexX + 31].HitboxFlag
 							|| tilesArray[firstHittedTileIndexX - 1].HitboxFlag)
 							return;
@@ -237,9 +235,8 @@ namespace team_rocket
 					else if (diffMousePositionHittedTile.X == 31) //At the right side of a block
 					{
 						newPortalPosition.X += 32;
-						newPortalSize = new Size(-32, 64);
 						alignment = 1;
-						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag 
+						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag
 							|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag
 							|| tilesArray[firstHittedTileIndexX + 1].HitboxFlag)
 							return;
@@ -247,20 +244,20 @@ namespace team_rocket
 					else if (diffMousePositionHittedTile.Y == 0) // At the top side of a block
 					{
 						newPortalPosition.Y -= 4;
-						newPortalSize = new Size(64, 32);
+						newPortalHitboxSize = new Size(64, 32);
 						flipImage = true;
 						alignment = 2;
-						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag 
+						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag
 							|| tilesArray[firstHittedTileIndexX - 31].HitboxFlag)
 							return;
 					}
 					else if (diffMousePositionHittedTile.Y == 31) // At the bottom side of a block
 					{
-						newPortalSize = new Size(64, -32);
+						newPortalHitboxSize = new Size(64, 32);
 						newPortalPosition.Y += 32;
 						flipImage = true;
 						alignment = 3;
-						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag 
+						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag
 							|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag)
 							return;
 					}
@@ -269,13 +266,15 @@ namespace team_rocket
 					{
 						bluePortal.ImageRotated = flipImage;
 						bluePortal.Alignment = alignment;
-						bluePortal.Rect = new Rectangle(newPortalPosition, newPortalSize);
+						bluePortal.ImageLocation = newPortalPosition;
+						bluePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
 					}
 					else if (e.Button == MouseButtons.Right)
 					{
 						orangePortal.ImageRotated = flipImage;
-						bluePortal.Alignment = alignment;
-						orangePortal.Rect = new Rectangle(newPortalPosition, newPortalSize);
+						orangePortal.Alignment = alignment;
+						orangePortal.ImageLocation = newPortalPosition;
+						orangePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
 					}
 					#endregion
 				}
@@ -345,6 +344,17 @@ namespace team_rocket
 			}
 			if (chars != null)
 				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
+			#region Reset portals
+			bluePortal.Alignment = -1;
+			bluePortal.Hitbox = Rectangle.Empty;
+			bluePortal.ImageRotated = false;
+			bluePortal.ImageLocation = Point.Empty;
+
+			orangePortal.Alignment = -1;
+			orangePortal.Hitbox = Rectangle.Empty;
+			orangePortal.ImageRotated = false;
+			orangePortal.ImageLocation = Point.Empty;
+			#endregion
 		}
 
 		/// <summary>
@@ -364,25 +374,138 @@ namespace team_rocket
 				if (!ClientRectangle.IntersectsWith(Rectangle.Round(character)))
 					character.Location = loadedLevel.StartPoint;
 
-				bool collideWitBluePortal = false;
-				bool collideWithOrangePortal = false;
-
-
-				if (bluePortal.Rect.IntersectsWith(Rectangle.Round(character)))
+				Portal sourcePortal = null;
+				Portal destPortal = null;
+				bool portalHitted = false;
+				if (bluePortal.Hitbox.IntersectsWith(Rectangle.Round(character)) && orangePortal.Alignment != -1)
 				{
-					character.Location = Point.Add(orangePortal.Rect.Location, new Size(-33, 0));
+					destPortal = orangePortal;
+					sourcePortal = bluePortal;
+					portalHitted = true;
 				}
-				else if (orangePortal.Rect.IntersectsWith(Rectangle.Round(character)))
+				else if (orangePortal.Hitbox.IntersectsWith(Rectangle.Round(character)) && bluePortal.Alignment != -1)
 				{
-
+					destPortal = bluePortal;
+					sourcePortal = orangePortal;
+					portalHitted = true;
 				}
 
+				if (portalHitted)
+				{
+					switch (destPortal.Alignment)
+					{
+						case 0:
+							character.Location = Point.Subtract(destPortal.ImageLocation, new Size(Convert.ToInt32(character.Width), 0));
+							break;
+						case 1:
+							character.Location = Point.Add(destPortal.ImageLocation, new Size(4, 0));
+							break;
+						case 2:
+							character.Location = Point.Subtract(destPortal.ImageLocation, new Size(0, Convert.ToInt32(character.Height)));
+							break;
+						case 3:
+							character.Location = Point.Add(destPortal.ImageLocation, new Size(32 - Convert.ToInt32(character.Width / 2), 4));
+							break;
+					}
+
+					#region Velocity change
+					int sa = sourcePortal.Alignment;
+					int da = destPortal.Alignment;
+					//source left
+					if (sa == 0 && da == 0) // dest left
+					{
+						velocity.Width = -velocity.Width;
+					}
+					else if (sa == 0 && da == 1) // dest right
+					{
+						//nothing to change
+					}
+					else if (sa == 0 && da == 2) // dest up
+					{
+						float temp = -velocity.Width;
+						velocity.Width = velocity.Height;
+						velocity.Height = temp;
+					}
+					else if (sa == 0 && da == 3) // dest bottom
+					{
+						float temp = velocity.Width;
+						velocity.Width = velocity.Height;
+						velocity.Height = temp;
+					}
+					//source right
+					else if (sa == 1 && da == 0) //dest left
+					{
+						//nothing to change
+					}
+					else if (sa == 1 && da == 1)  // dest right
+					{
+						velocity.Width = -velocity.Width;
+					}
+					else if (sa == 1 && da == 2) // dest up
+					{
+						float temp = velocity.Width;
+						velocity.Width = velocity.Height;
+						velocity.Height = temp;
+					}
+					else if (sa == 1 && da == 3) // dest bottom
+					{
+						float temp = -velocity.Width;
+						velocity.Width = velocity.Height;
+						velocity.Height = temp;
+					}
+					//source up
+					else if (sa == 2 && da == 0) // dest left
+					{
+						float temp = -velocity.Height;
+						velocity.Height = velocity.Width;
+						velocity.Width = temp;
+					}
+					else if (sa == 2 && da == 1) // dest right
+					{
+						float temp = velocity.Height;
+						velocity.Height = velocity.Width;
+						velocity.Width = temp;
+					}
+					else if (sa == 2 && da == 2) // dest up
+					{
+						velocity.Height = -velocity.Height;
+					}
+					else if (sa == 2 && da == 3) // dest bottom
+					{
+						//nothing to change
+					}
+					// source bottom
+					else if (sa == 3 && da == 0) // dest left
+					{
+						float temp = -velocity.Height;
+						velocity.Height = velocity.Width;
+						velocity.Width = temp;
+					}
+					else if (sa == 3 && da == 1) // dest right
+					{
+						float temp = velocity.Height;
+						velocity.Height = velocity.Width;
+						velocity.Width = temp;
+					}
+					else if (sa == 3 && da == 2) // dest up
+					{
+						// nothing to change
+					}
+					else if (sa == 3 && da == 3) // dest bottom
+					{
+						velocity.Height = -velocity.Height;
+					}
+					#endregion
+				}
 
 				RectangleF futureCharacter = new RectangleF(character.Location + velocity, character.Size);
 
-				#region Detect the collision in the next tick
-				if (!bluePortal.Rect.IntersectsWith(Rectangle.Round(futureCharacter)) && !orangePortal.Rect.IntersectsWith(Rectangle.Round(futureCharacter)))
+				if (!bluePortal.Hitbox.IntersectsWith(Rectangle.Round(futureCharacter))
+					&& !orangePortal.Hitbox.IntersectsWith(Rectangle.Round(futureCharacter))
+					|| bluePortal.Alignment == -1 || orangePortal.Alignment == -1)
 				{
+					#region Detect the collision in the next tick
+
 					List<int> futureCollidedTileIndex = new List<int>();
 
 					for (int i = 0; i < tilesArray.Length; i++)
@@ -459,6 +582,7 @@ namespace team_rocket
 				}
 				character.Location += velocity;
 				chars[j].Velocity = velocity;
+				verticalVelocityLastTick = velocity.Height;
 				chars[j].RectF = character;
 			}
 			Invalidate();
@@ -480,10 +604,10 @@ namespace team_rocket
 				e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
 			}
 			e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
-			if (bluePortal.Rect != Rectangle.Empty)
-				e.Graphics.DrawImage(bluePortal.Image, bluePortal.Rect.Location);
-			if (orangePortal.Rect != Rectangle.Empty)
-				e.Graphics.DrawImage(orangePortal.Image, orangePortal.Rect.Location);
+			if (bluePortal.Hitbox != Rectangle.Empty)
+				e.Graphics.DrawImage(bluePortal.Image, bluePortal.ImageLocation);
+			if (orangePortal.Hitbox != Rectangle.Empty)
+				e.Graphics.DrawImage(orangePortal.Image, orangePortal.ImageLocation);
 		}
 
 		/// <summary>
@@ -523,7 +647,8 @@ namespace team_rocket
 				bNowSpace = true;
 				if (bNowSpace != bTempSpace)
 				{
-					chars[0].Velocity = new SizeF(chars[0].Velocity.Width, chars[0].Velocity.Height - jumpVelocity);
+					if (chars[0].Velocity.Height == 0 && verticalVelocityLastTick == 0) // Disable multi jump
+						chars[0].Velocity = new SizeF(chars[0].Velocity.Width, chars[0].Velocity.Height - jumpVelocity);
 				}
 			}
 		}
