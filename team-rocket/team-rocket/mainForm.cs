@@ -264,17 +264,23 @@ namespace team_rocket
 
 					if (e.Button == MouseButtons.Left)
 					{
-						bluePortal.ImageRotated = flipImage;
-						bluePortal.Alignment = alignment;
-						bluePortal.ImageLocation = newPortalPosition;
-						bluePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
+                        if (orangePortal.Hitbox != null && !orangePortal.Hitbox.IntersectsWith(new Rectangle(newPortalHitboxPosition, newPortalHitboxSize)))
+                        {
+                            bluePortal.ImageRotated = flipImage;
+                            bluePortal.Alignment = alignment;
+                            bluePortal.ImageLocation = newPortalPosition;
+                            bluePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
+                        }
 					}
 					else if (e.Button == MouseButtons.Right)
 					{
-						orangePortal.ImageRotated = flipImage;
-						orangePortal.Alignment = alignment;
-						orangePortal.ImageLocation = newPortalPosition;
-						orangePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
+                        if (bluePortal.Hitbox != null && !bluePortal.Hitbox.IntersectsWith(new Rectangle(newPortalHitboxPosition, newPortalHitboxSize)))
+                        {
+                            orangePortal.ImageRotated = flipImage;
+                            orangePortal.Alignment = alignment;
+                            orangePortal.ImageLocation = newPortalPosition;
+                            orangePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
+                        }
 					}
 					#endregion
 				}
