@@ -33,7 +33,7 @@ namespace team_rocket
 		OpenFileDialog ofd;
 		Portal bluePortal;
 		Portal orangePortal;
-		string s = "J"; //DEBUGGING
+
 		public main()
 		{
 			InitializeComponent();
@@ -217,52 +217,68 @@ namespace team_rocket
 				}
 				#endregion
 
-				if (firstHittedTileIndexX == firstHittedTileIndexY && x >= 0 && x <= ClientSize.Width && y >= 0 && y<= ClientSize.Height)
+				#region Calculating the alignment of the portal
+				if (firstHittedTileIndexX == firstHittedTileIndexY && x >= 0 && x <= ClientSize.Width && y >= 0 && y <= ClientSize.Height)
 				{
-					Point pos = tilesArray[firstHittedTileIndexX].Rect.Location;
-					Size size = new Size(32, 64);
-					Point p = Point.Subtract(new Point(x, y), (Size)tilesArray[firstHittedTileIndexX].Rect.Location);
+					Point newPortalPosition = tilesArray[firstHittedTileIndexX].Rect.Location;
+					Size newPortalSize = new Size(32, 64);
+					Point diffMousePositionHittedTile = Point.Subtract(new Point(x, y), (Size)tilesArray[firstHittedTileIndexX].Rect.Location);
 					bool flipImage = false;
 					int alignment = -1;
-					if (p.X == 0) //At the left side of a block
+					if (diffMousePositionHittedTile.X == 0) //At the left side of a block
 					{
-						pos.X -= 4;
+						newPortalPosition.X -= 4;
 						alignment = 0;
+						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag 
+							|| tilesArray[firstHittedTileIndexX + 31].HitboxFlag
+							|| tilesArray[firstHittedTileIndexX - 1].HitboxFlag)
+							return;
 					}
-					else if (p.X == 31) //At the right side of a block
+					else if (diffMousePositionHittedTile.X == 31) //At the right side of a block
 					{
-						pos.X += 32;
-						size = new Size(-32, 64);
+						newPortalPosition.X += 32;
+						newPortalSize = new Size(-32, 64);
 						alignment = 1;
+						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag 
+							|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag
+							|| tilesArray[firstHittedTileIndexX + 1].HitboxFlag)
+							return;
 					}
-					else if (p.Y == 0) // At the top side of a block
+					else if (diffMousePositionHittedTile.Y == 0) // At the top side of a block
 					{
-						pos.Y -= 4;
-						size = new Size(64, 32);
+						newPortalPosition.Y -= 4;
+						newPortalSize = new Size(64, 32);
 						flipImage = true;
 						alignment = 2;
+						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag 
+							|| tilesArray[firstHittedTileIndexX - 31].HitboxFlag)
+							return;
 					}
-					else if (p.Y == 31) // At the bottom side of a block
+					else if (diffMousePositionHittedTile.Y == 31) // At the bottom side of a block
 					{
-						size = new Size(64, -32);
-						pos.Y += 32;
+						newPortalSize = new Size(64, -32);
+						newPortalPosition.Y += 32;
 						flipImage = true;
 						alignment = 3;
+						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag 
+							|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag)
+							return;
 					}
-					
+
 					if (e.Button == MouseButtons.Left)
 					{
 						bluePortal.ImageRotated = flipImage;
 						bluePortal.Alignment = alignment;
-						bluePortal.Rect = new Rectangle(pos, size);
+						bluePortal.Rect = new Rectangle(newPortalPosition, newPortalSize);
 					}
 					else if (e.Button == MouseButtons.Right)
 					{
 						orangePortal.ImageRotated = flipImage;
 						bluePortal.Alignment = alignment;
-						orangePortal.Rect = new Rectangle(pos, size);
+						orangePortal.Rect = new Rectangle(newPortalPosition, newPortalSize);
 					}
-			}
+					#endregion
+				}
 			}
 		}
 
