@@ -306,22 +306,23 @@ namespace team_rocket
             }
             else
             {
-                startGameButton = new Button(new PointF(ClientSize.Width / 2, 100));
+                startGameButton = new Button(new PointF(ClientSize.Width / 2 - 50, 100)); // -50 because it's half of the SizeF's X value, so it is centered
                 startGameButton.Text = "Start Game";
                 startGameButton.Size = new SizeF(100, 40);
-                quitGameButton = new Button(new PointF(ClientSize.Width / 2, 200));
+                quitGameButton = new Button(new PointF(ClientSize.Width / 2 - 50, 200));
                 quitGameButton.Text = "Quit Game";
                 quitGameButton.Size = new SizeF(100, 40);
 
-                e.Graphics.FillRectangle(Brushes.Gray, startGameButton.Body);
-                e.Graphics.FillRectangle(Brushes.Gray, quitGameButton.Body);
+                e.Graphics.FillRectangle(Brushes.LightSkyBlue, ClientRectangle);
+                e.Graphics.FillRectangle(Brushes.DimGray, startGameButton.Body);
+                e.Graphics.FillRectangle(Brushes.DimGray, quitGameButton.Body);
 
                 StringFormat format = new StringFormat();
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
 
-                e.Graphics.DrawString(startGameButton.Text, Font, Brushes.Black, new PointF(startGameButton.Location.X + startGameButton.Body.Width / 2, startGameButton.Location.Y + startGameButton.Body.Height / 2), format);
-                e.Graphics.DrawString(quitGameButton.Text, Font, Brushes.Black, new PointF(quitGameButton.Location.X + quitGameButton.Body.Width / 2, quitGameButton.Location.Y + quitGameButton.Body.Height / 2), format);
+                e.Graphics.DrawString(startGameButton.Text, Font, Brushes.WhiteSmoke, new PointF(startGameButton.Location.X + startGameButton.Body.Width / 2, startGameButton.Location.Y + startGameButton.Body.Height / 2), format);
+                e.Graphics.DrawString(quitGameButton.Text, Font, Brushes.WhiteSmoke, new PointF(quitGameButton.Location.X + quitGameButton.Body.Width / 2, quitGameButton.Location.Y + quitGameButton.Body.Height / 2), format);
             }
 		}
 
