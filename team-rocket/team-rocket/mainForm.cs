@@ -21,11 +21,14 @@ namespace team_rocket
 		bool bTempA, bNowA;
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
+		bool currentlyInMenu;
 		float g; //Gravitational acceleration
 		float velocityLR;
 		float jumpVelocity; //Unit: px/tick for the left or right and for the jumpspeed
 		float verticalVelocityLastTick;
 		OpenFileDialog ofd;
+		Button startGameButton;
+		Button quitGameButton;
 		Portal bluePortal;
 		Portal orangePortal;
 
@@ -46,6 +49,7 @@ namespace team_rocket
 			velocityLR = 5;
 			jumpVelocity = 15;
 			verticalVelocityLastTick = 0;
+			currentlyInMenu = true;
 			g = 1f;
 			bluePortal = new Portal();
 			orangePortal = new Portal();
@@ -123,10 +127,6 @@ namespace team_rocket
 			ofd.Filter = "*.map |*.map";
 			ofd.FileOk += OnFileOKofd;
 			#endregion
-
-			// Spawn Character
-			chars = new Character[1];
-			chars[0] = new Character(loadedLevel.StartPoint);
 		}
 
 		/// <summary>
@@ -350,6 +350,7 @@ namespace team_rocket
 			}
 			if (chars != null)
 				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
+
 			#region Reset portals
 			bluePortal.Alignment = -1;
 			bluePortal.Hitbox = Rectangle.Empty;
@@ -360,6 +361,12 @@ namespace team_rocket
 			orangePortal.Hitbox = Rectangle.Empty;
 			orangePortal.ImageRotated = false;
 			orangePortal.ImageLocation = Point.Empty;
+			#endregion
+
+			#region Spawn Character
+			// Spawn Character
+			chars = new Character[1];
+			chars[0] = new Character(lvl.StartPoint);
 			#endregion
 		}
 
@@ -601,19 +608,44 @@ namespace team_rocket
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			base.OnPaint(e);
-			foreach (Tile item in tilesArray)
+			if (!currentlyInMenu)
 			{
-				e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+				foreach (Tile item in tilesArray)
+				{
+					e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+				}
+				foreach (Character item in chars)
+				{
+					e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
+				}
+				e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
+				if (bluePortal.Hitbox != Rectangle.Empty)
+					e.Graphics.DrawImage(bluePortal.Image, bluePortal.ImageLocation);
+				if (orangePortal.Hitbox != Rectangle.Empty)
+					e.Graphics.DrawImage(orangePortal.Image, orangePortal.ImageLocation);
 			}
-			foreach (Character item in chars)
+			else
 			{
-				e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
+				startGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 200)); // -50 because it's half of the SizeF's X value, so it is centered
+				startGameButton.Text = "Start Game";
+				startGameButton.Size = new SizeF(200, 40);
+				quitGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 300));
+				quitGameButton.Text = "Quit Game";
+				quitGameButton.Size = new SizeF(200, 40);
+
+				e.Graphics.FillRectangle(Brushes.LightSkyBlue, ClientRectangle);
+				e.Graphics.FillRectangle(Brushes.DimGray, startGameButton.Body);
+				e.Graphics.FillRectangle(Brushes.DimGray, quitGameButton.Body);
+
+				StringFormat format = new StringFormat();
+				format.Alignment = StringAlignment.Center;
+				format.LineAlignment = StringAlignment.Center;
+				Font titleFont = new Font(FontFamily.GenericMonospace, 40, FontStyle.Bold);
+
+				e.Graphics.DrawString("PORTAL 2D", titleFont, Brushes.WhiteSmoke, new PointF(ClientSize.Width / 2 - 150, 60));
+				e.Graphics.DrawString(startGameButton.Text, new Font(FontFamily.GenericMonospace, 20, FontStyle.Bold), Brushes.WhiteSmoke, new PointF(startGameButton.Location.X + startGameButton.Body.Width / 2, startGameButton.Location.Y + startGameButton.Body.Height / 2), format);
+				e.Graphics.DrawString(quitGameButton.Text, new Font(FontFamily.GenericMonospace, 20, FontStyle.Bold), Brushes.WhiteSmoke, new PointF(quitGameButton.Location.X + quitGameButton.Body.Width / 2, quitGameButton.Location.Y + quitGameButton.Body.Height / 2), format);
 			}
-			e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
-			if (bluePortal.Hitbox != Rectangle.Empty)
-				e.Graphics.DrawImage(bluePortal.Image, bluePortal.ImageLocation);
-			if (orangePortal.Hitbox != Rectangle.Empty)
-				e.Graphics.DrawImage(orangePortal.Image, orangePortal.ImageLocation);
 		}
 
 		/// <summary>
