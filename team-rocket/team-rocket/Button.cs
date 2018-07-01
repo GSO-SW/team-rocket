@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace team_rocket
 {
-    /// <summary>
-    /// Configurable buttons for the user to press in menus for example.
-    /// </summary>
-    class Button
+	/// <summary>
+	/// Configurable buttons for the user to press in menus for example.
+	/// </summary>
+	class Button
     {
         RectangleF body;
         string text;
