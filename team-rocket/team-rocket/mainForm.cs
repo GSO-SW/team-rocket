@@ -15,6 +15,7 @@ namespace team_rocket
 		bool currentlyInMenu;
 		int horizontalMovementFrameCounter; // Counts the frames where the character moves horizontally.
 		int animationSpeed;
+		int levelIndex;
 		float g; //Gravitational acceleration
 		float velocityLR;
 		float jumpVelocity; //Unit: px/tick for the left or right and for the jumpspeed
@@ -43,6 +44,7 @@ namespace team_rocket
 			#endregion
 
 			#region initialize vars
+			levelIndex = 1;
 			bTempA = bNowA = bTempD = bNowD = bTempSpace = bNowSpace = false;
 			velocityLR = 5;
 			jumpVelocity = 15;
@@ -53,12 +55,12 @@ namespace team_rocket
 			g = 1f;
 			bluePortal = new Portal();
 			orangePortal = new Portal();
-            startGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 200)); // -50 because it's half of the SizeF's X value, so it is centered
-            quitGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 300));
-            #endregion
+			startGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 200)); // -50 because it's half of the SizeF's X value, so it is centered
+			quitGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 300));
+			#endregion
 
-            #region Subscribe events
-            KeyDown += OnKeyDown;
+			#region Subscribe events
+			KeyDown += OnKeyDown;
 			KeyUp += OnKeyUp;
 			MouseClick += onMouseClick;
 			#endregion
@@ -143,162 +145,168 @@ namespace team_rocket
 			//mouse.y = mouse.x
 			//player.y = player.x
 			//m = deltaY/deltaX
-			float playerX = chars[0].RectF.X + chars[0].RectF.Width / 2;
-			float playerY = chars[0].RectF.Y + chars[0].RectF.Height / 2;
-			float m = (playerY - e.Location.Y) / (playerX - e.Location.X);
-			if (!float.IsInfinity(m) && !float.IsNaN(m))
+			if (!currentlyInMenu)
 			{
-				float b = playerY - m * playerX;
-				Point pointToTest = Point.Round(new PointF(playerX, playerY));
-				int x = Convert.ToInt32(playerX);
-				int y = Convert.ToInt32(playerY);
-				int jx = 0;
-				int jy = 0;
-				bool hitX = false;
-				bool hitY = false;
-				int firstHittedTileIndexX = -1;
-				int firstHittedTileIndexY = -1;
+				float playerX = chars[0].RectF.X + chars[0].RectF.Width / 2;
+				float playerY = chars[0].RectF.Y + chars[0].RectF.Height / 2;
+				float m = (playerY - e.Location.Y) / (playerX - e.Location.X);
+				if (!float.IsInfinity(m) && !float.IsNaN(m))
+				{
+					float b = playerY - m * playerX;
+					Point pointToTest = Point.Round(new PointF(playerX, playerY));
+					int x = Convert.ToInt32(playerX);
+					int y = Convert.ToInt32(playerY);
+					int jx = 0;
+					int jy = 0;
+					bool hitX = false;
+					bool hitY = false;
+					int firstHittedTileIndexX = -1;
+					int firstHittedTileIndexY = -1;
 
-				#region Get the x-Value of the intercept
-				if (playerX < e.Location.X) //rechts vom spieler
-					jx = 1;
-				else if (playerX > e.Location.X)//links vom spieler
-					jx = -1;
-				else if (playerX == e.Location.X) // auf der gleichen breite wie der spieler
-				{
-					x = e.Location.X;
-					hitX = true;
-				}
-				while ((x < ClientSize.Width && x > 0) && !hitX)
-				{
-					x += jx;
-					pointToTest = Point.Round(new PointF(x, m * x + b));
-					for (int i = 0; i < tilesArray.Length; i++)
+					#region Get the x-Value of the intercept
+					if (playerX < e.Location.X) //rechts vom spieler
+						jx = 1;
+					else if (playerX > e.Location.X)//links vom spieler
+						jx = -1;
+					else if (playerX == e.Location.X) // auf der gleichen breite wie der spieler
 					{
-						if (tilesArray[i].HitboxFlag && tilesArray[i].Rect.Contains(Point.Round(pointToTest)))
+						x = e.Location.X;
+						hitX = true;
+					}
+					while ((x < ClientSize.Width && x > 0) && !hitX)
+					{
+						x += jx;
+						pointToTest = Point.Round(new PointF(x, m * x + b));
+						for (int i = 0; i < tilesArray.Length; i++)
 						{
-							if (!hitX)
+							if (tilesArray[i].HitboxFlag && tilesArray[i].Rect.Contains(Point.Round(pointToTest)))
 							{
-								hitX = true;
-								firstHittedTileIndexX = i;
+								if (!hitX)
+								{
+									hitX = true;
+									firstHittedTileIndexX = i;
+								}
 							}
 						}
 					}
-				}
-				#endregion
+					#endregion
 
-				#region Get the y-Value of the intercept
-				if (playerY < e.Location.Y) //unter dem spieler
-					jy = 1;
-				else if (playerY > e.Location.Y)//über dem spieler
-					jy = -1;
-				if (playerY == e.Location.Y) //auf der gleichen höhe wie der spieler
-				{
-					y = e.Location.Y;
-					hitY = true;
-				}
-				while ((y < ClientSize.Height && y > 0) && !hitY)
-				{
-					y += jy;
-					pointToTest = Point.Round(new PointF((y - b) / m, y));
-					for (int i = 0; i < tilesArray.Length; i++)
+					#region Get the y-Value of the intercept
+					if (playerY < e.Location.Y) //unter dem spieler
+						jy = 1;
+					else if (playerY > e.Location.Y)//über dem spieler
+						jy = -1;
+					if (playerY == e.Location.Y) //auf der gleichen höhe wie der spieler
 					{
-						if (tilesArray[i].HitboxFlag && tilesArray[i].Rect.Contains(Point.Round(pointToTest)))
+						y = e.Location.Y;
+						hitY = true;
+					}
+					while ((y < ClientSize.Height && y > 0) && !hitY)
+					{
+						y += jy;
+						pointToTest = Point.Round(new PointF((y - b) / m, y));
+						for (int i = 0; i < tilesArray.Length; i++)
 						{
-							if (!hitY)
+							if (tilesArray[i].HitboxFlag && tilesArray[i].Rect.Contains(Point.Round(pointToTest)))
 							{
-								hitY = true;
-								firstHittedTileIndexY = i;
+								if (!hitY)
+								{
+									hitY = true;
+									firstHittedTileIndexY = i;
+								}
 							}
 						}
 					}
+					#endregion
+
+					#region Calculating the alignment of the portal
+					if (firstHittedTileIndexX != -1 && firstHittedTileIndexY != -1 && tilesArray[firstHittedTileIndexX].ImageID != 3) //Disable portals on Ground_1
+					{
+						if (firstHittedTileIndexX == firstHittedTileIndexY && x >= 0 && x <= ClientSize.Width && y >= 0 && y <= ClientSize.Height)
+						{
+							Point newPortalPosition = tilesArray[firstHittedTileIndexX].Rect.Location;
+							Point newPortalHitboxPosition = tilesArray[firstHittedTileIndexX].Rect.Location;
+							Size newPortalHitboxSize = new Size(32, 64);
+							Point diffMousePositionHittedTile = Point.Subtract(new Point(x, y), (Size)tilesArray[firstHittedTileIndexX].Rect.Location);
+							bool flipImage = false;
+							int alignment = -1;
+
+							if (diffMousePositionHittedTile.X == 0) //At the left side of a block
+							{
+								newPortalPosition.X -= 4;
+								alignment = 0;
+								if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag
+									|| tilesArray[firstHittedTileIndexX + 31].HitboxFlag
+									|| tilesArray[firstHittedTileIndexX - 1].HitboxFlag)
+									return;
+							}
+							else if (diffMousePositionHittedTile.X == 31) //At the right side of a block
+							{
+								newPortalPosition.X += 32;
+								alignment = 1;
+								if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag
+									|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag
+									|| tilesArray[firstHittedTileIndexX + 1].HitboxFlag)
+									return;
+							}
+							else if (diffMousePositionHittedTile.Y == 0) // At the top side of a block
+							{
+								newPortalPosition.Y -= 4;
+								newPortalHitboxSize = new Size(64, 32);
+								flipImage = true;
+								alignment = 2;
+								if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag
+									|| tilesArray[firstHittedTileIndexX - 31].HitboxFlag)
+									return;
+							}
+							else if (diffMousePositionHittedTile.Y == 31) // At the bottom side of a block
+							{
+								newPortalHitboxSize = new Size(64, 32);
+								newPortalPosition.Y += 32;
+								flipImage = true;
+								alignment = 3;
+								if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag
+									|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag)
+									return;
+							}
+							if (e.Button == MouseButtons.Left)
+							{
+								if (orangePortal.Hitbox != null && !orangePortal.Hitbox.IntersectsWith(new Rectangle(newPortalHitboxPosition, newPortalHitboxSize)))
+								{
+									bluePortal.ImageRotated = flipImage;
+									bluePortal.Alignment = alignment;
+									bluePortal.ImageLocation = newPortalPosition;
+									bluePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
+								}
+							}
+							else if (e.Button == MouseButtons.Right)
+							{
+								if (bluePortal.Hitbox != null && !bluePortal.Hitbox.IntersectsWith(new Rectangle(newPortalHitboxPosition, newPortalHitboxSize)))
+								{
+									orangePortal.ImageRotated = flipImage;
+									orangePortal.Alignment = alignment;
+									orangePortal.ImageLocation = newPortalPosition;
+									orangePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
+								}
+							}
+						}
+					}
+					#endregion
 				}
-				#endregion
 
-				#region Calculating the alignment of the portal
-				if (firstHittedTileIndexX != -1 && firstHittedTileIndexX == firstHittedTileIndexY && x >= 0 && x <= ClientSize.Width && y >= 0 && y <= ClientSize.Height)
-				{
-					Point newPortalPosition = tilesArray[firstHittedTileIndexX].Rect.Location;
-					Point newPortalHitboxPosition = tilesArray[firstHittedTileIndexX].Rect.Location;
-					Size newPortalHitboxSize = new Size(32, 64);
-					Point diffMousePositionHittedTile = Point.Subtract(new Point(x, y), (Size)tilesArray[firstHittedTileIndexX].Rect.Location);
-					bool flipImage = false;
-					int alignment = -1;
-
-					if (diffMousePositionHittedTile.X == 0) //At the left side of a block
-					{
-						newPortalPosition.X -= 4;
-						alignment = 0;
-						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag
-							|| tilesArray[firstHittedTileIndexX + 31].HitboxFlag
-							|| tilesArray[firstHittedTileIndexX - 1].HitboxFlag)
-							return;
-					}
-					else if (diffMousePositionHittedTile.X == 31) //At the right side of a block
-					{
-						newPortalPosition.X += 32;
-						alignment = 1;
-						if (!tilesArray[firstHittedTileIndexX + 32].HitboxFlag
-							|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag
-							|| tilesArray[firstHittedTileIndexX + 1].HitboxFlag)
-							return;
-					}
-					else if (diffMousePositionHittedTile.Y == 0) // At the top side of a block
-					{
-						newPortalPosition.Y -= 4;
-						newPortalHitboxSize = new Size(64, 32);
-						flipImage = true;
-						alignment = 2;
-						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag
-							|| tilesArray[firstHittedTileIndexX - 31].HitboxFlag)
-							return;
-					}
-					else if (diffMousePositionHittedTile.Y == 31) // At the bottom side of a block
-					{
-						newPortalHitboxSize = new Size(64, 32);
-						newPortalPosition.Y += 32;
-						flipImage = true;
-						alignment = 3;
-						if (!tilesArray[firstHittedTileIndexX + 1].HitboxFlag
-							|| tilesArray[firstHittedTileIndexX + 33].HitboxFlag)
-							return;
-					}
-
-					if (e.Button == MouseButtons.Left)
-					{
-                        if (orangePortal.Hitbox != null && !orangePortal.Hitbox.IntersectsWith(new Rectangle(newPortalHitboxPosition, newPortalHitboxSize)))
-                        {
-                            bluePortal.ImageRotated = flipImage;
-                            bluePortal.Alignment = alignment;
-                            bluePortal.ImageLocation = newPortalPosition;
-                            bluePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
-                        }
-					}
-					else if (e.Button == MouseButtons.Right)
-					{
-                        if (bluePortal.Hitbox != null && !bluePortal.Hitbox.IntersectsWith(new Rectangle(newPortalHitboxPosition, newPortalHitboxSize)))
-                        {
-                            orangePortal.ImageRotated = flipImage;
-                            orangePortal.Alignment = alignment;
-                            orangePortal.ImageLocation = newPortalPosition;
-                            orangePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
-                        }
-					}
-				}
-				#endregion
+			}
+			if (currentlyInMenu && startGameButton.Body.Contains(e.Location))
+			{
+				loadMapFile(Application.StartupPath + @"\maps\level_1.map");
+				updateGraphicsTimer.Start();
+				currentlyInMenu = false;
 			}
 
-            if (currentlyInMenu && startGameButton.Body.Contains(e.Location))
-            {
-                updateGraphicsTimer.Start();
-                currentlyInMenu = false;
-            }
-
-            if (currentlyInMenu && quitGameButton.Body.Contains(e.Location))
-            {
-                Close();
-            }
-        }
+			if (currentlyInMenu && quitGameButton.Body.Contains(e.Location))
+			{
+				Close();
+			}
+		}
 
 		/// <summary>
 		/// OpenFileDialog FileOK-EventHandler. Used to load the chosen map.
@@ -307,9 +315,14 @@ namespace team_rocket
 		/// <param name="e"></param>
 		private void OnFileOKofd(object sender, CancelEventArgs e)
 		{
-			if (File.Exists(ofd.FileName))
+			loadMapFile(ofd.FileName);
+		}
+
+		private void loadMapFile(string path)
+		{
+			if (File.Exists(path))
 			{
-				StreamReader strR = new StreamReader(ofd.FileName);
+				StreamReader strR = new StreamReader(path);
 				string s = strR.ReadLine();
 				Point startPoint = new Point
 				{
@@ -331,6 +344,21 @@ namespace team_rocket
 				loadedLevel = new Level(ImageIDs, startPoint, endPoint);
 				loadLevel(new Level(ImageIDs, startPoint, endPoint));
 			}
+			else
+				MessageBox.Show(path + " konnte nicht geladen werden.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+
+		private void resetPortals()
+		{
+			bluePortal.Alignment = -1;
+			bluePortal.Hitbox = Rectangle.Empty;
+			bluePortal.ImageRotated = false;
+			bluePortal.ImageLocation = Point.Empty;
+
+			orangePortal.Alignment = -1;
+			orangePortal.Hitbox = Rectangle.Empty;
+			orangePortal.ImageRotated = false;
+			orangePortal.ImageLocation = Point.Empty;
 		}
 
 		/// <summary>
@@ -364,17 +392,7 @@ namespace team_rocket
 			if (chars != null)
 				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
 
-			#region Reset portals
-			bluePortal.Alignment = -1;
-			bluePortal.Hitbox = Rectangle.Empty;
-			bluePortal.ImageRotated = false;
-			bluePortal.ImageLocation = Point.Empty;
-
-			orangePortal.Alignment = -1;
-			orangePortal.Hitbox = Rectangle.Empty;
-			orangePortal.ImageRotated = false;
-			orangePortal.ImageLocation = Point.Empty;
-			#endregion
+			resetPortals();
 
 			#region Spawn Character
 			// Spawn Character
@@ -399,6 +417,15 @@ namespace team_rocket
 
 				if (!ClientRectangle.IntersectsWith(Rectangle.Round(character)))
 					character.Location = loadedLevel.StartPoint;
+
+				if (chars[j].RectF.Contains(loadedLevel.EndPoint))
+				{
+					levelIndex++;
+					if (levelIndex == 2)
+					{
+						loadMapFile(Application.StartupPath + @"\maps\level_2.map");
+					}
+				}
 
 				Portal sourcePortal = null;
 				Portal destPortal = null;
@@ -751,9 +778,13 @@ namespace team_rocket
 			{
 				bNowSpace = bTempSpace = false;
 			}
-			if (e.KeyCode == Keys.O)
+			if (e.KeyCode == Keys.O && !currentlyInMenu)
 			{
 				ofd.ShowDialog();
+			}
+			if (e.KeyCode == Keys.R)
+			{
+				resetPortals();
 			}
 		}
 	}

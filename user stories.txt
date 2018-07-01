@@ -10,15 +10,6 @@ Der User soll mit seinem Spielcharakter Portale an Oberflächen schießen können i
 Durch Portale gehen
 Der User soll mit seinem Spielcharakter durch ein Portal gehen und durch das andere wieder rauskommen.
 
-In-game Buttons
-Es sollen im Spiel Buttons geben, die druckempfindlich auf andere Obejekte reagieren.
-
-Sterben
-Der Spieler soll im Spiel durch entweder Schaden oder runterfallen sterben können.
-
-Tragbare Objekte
-Der Spieler kann gewisse Objekte mit sich herumtragen.
-
 Animationen
 Der Spieler soll über Animationen verfügen, z.B. beim Gehen.
 
