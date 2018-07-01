@@ -145,19 +145,19 @@ namespace team_rocket
 
             // Load the sprites for movement
             sprite_right = new Bitmap[3];
-            sprite_right[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
-            sprite_right[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
-            sprite_right[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
+            sprite_right[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_0.png");
+            sprite_right[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_1.png");
+            sprite_right[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_2.png");
 
             // Do the same here but flip the images
             sprite_left = new Bitmap[3];
-            Bitmap mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
+            Bitmap mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_0.png");
             mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
             sprite_left[0] = mirrored;
-            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
+            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_1.png");
             mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
             sprite_left[1] = mirrored;
-            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_right.png");
+            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\gfx\character_2.png");
             mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
             sprite_left[2] = mirrored;
         }
