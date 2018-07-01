@@ -13,15 +13,13 @@ namespace team_rocket
 {
 	public partial class main : Form
 	{
-		Timer updateGraphicsTimer;
-		Tile[] tilesArray;
-		Bitmap[] bitmapArray;
-		Level loadedLevel;
-		Character[] chars;
+		
 		bool bTempA, bNowA;
 		bool bTempD, bNowD;
 		bool bTempSpace, bNowSpace;
 		bool currentlyInMenu;
+		int horizontalMovementFrameCounter; // Counts the frames where the character moves horizontally.
+		int animationSpeed;
 		float g; //Gravitational acceleration
 		float velocityLR;
 		float jumpVelocity; //Unit: px/tick for the left or right and for the jumpspeed
@@ -31,6 +29,11 @@ namespace team_rocket
 		Button quitGameButton;
 		Portal bluePortal;
 		Portal orangePortal;
+		Timer updateGraphicsTimer;
+		Tile[] tilesArray;
+		Bitmap[] bitmapArray;
+		Level loadedLevel;
+		Character[] chars;
 
 		public main()
 		{
@@ -49,6 +52,8 @@ namespace team_rocket
 			velocityLR = 5;
 			jumpVelocity = 15;
 			verticalVelocityLastTick = 0;
+			horizontalMovementFrameCounter = 0;
+			animationSpeed = 10;
 			currentlyInMenu = true;
 			g = 1f;
 			bluePortal = new Portal();
@@ -282,8 +287,8 @@ namespace team_rocket
                             orangePortal.Hitbox = new Rectangle(newPortalHitboxPosition, newPortalHitboxSize);
                         }
 					}
-					#endregion
 				}
+				#endregion
 			}
 		}
 
@@ -598,6 +603,22 @@ namespace team_rocket
 				verticalVelocityLastTick = velocity.Height;
 				chars[j].RectF = character;
 			}
+
+			#region Animation
+			// Count the times where the character is moving left or right in a frame
+			if (chars[0].IsMovingLR)
+			{
+				horizontalMovementFrameCounter++;
+			}
+			// When it reaches its maximum, play the next frame of the animation
+			// Maximum is defined as the animationSpeed
+			if (horizontalMovementFrameCounter == animationSpeed)
+			{
+				horizontalMovementFrameCounter = 0;
+				chars[0].NextFrame();
+			}
+			#endregion
+
 			Invalidate();
 		}
 
@@ -612,11 +633,17 @@ namespace team_rocket
 			{
 				foreach (Tile item in tilesArray)
 				{
-					e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+					if (!item.HitboxFlag)
+						e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 				}
 				foreach (Character item in chars)
 				{
-					e.Graphics.FillRectangle(Brushes.Blue, item.RectF);
+					e.Graphics.DrawImage(item.CurrentSprite, item.Location);
+				}
+				foreach (Tile item in tilesArray)
+				{
+					if (item.HitboxFlag)
+						e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
 				}
 				e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
 				if (bluePortal.Hitbox != Rectangle.Empty)
