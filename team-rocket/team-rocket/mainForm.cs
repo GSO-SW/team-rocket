@@ -50,7 +50,7 @@ namespace team_rocket
 			jumpVelocity = 15;
 			verticalVelocityLastTick = 0;
 			horizontalMovementFrameCounter = 0;
-			animationSpeed = 10;
+			animationSpeed = 7;
 			currentlyInMenu = true;
 			g = 1f;
 			bluePortal = new Portal();
@@ -131,6 +131,10 @@ namespace team_rocket
 			ofd.Filter = "*.map |*.map";
 			ofd.FileOk += OnFileOKofd;
 			#endregion
+
+			// Spawn Character
+			chars = new Character[1];
+			chars[0] = new Character(new PointF(0,0));
 		}
 
 		/// <summary>
@@ -394,11 +398,6 @@ namespace team_rocket
 
 			resetPortals();
 
-			#region Spawn Character
-			// Spawn Character
-			chars = new Character[1];
-			chars[0] = new Character(lvl.StartPoint);
-			#endregion
 		}
 
 		/// <summary>
@@ -417,15 +416,6 @@ namespace team_rocket
 
 				if (!ClientRectangle.IntersectsWith(Rectangle.Round(character)))
 					character.Location = loadedLevel.StartPoint;
-
-				if (chars[j].RectF.Contains(loadedLevel.EndPoint))
-				{
-					levelIndex++;
-					if (levelIndex == 2)
-					{
-						loadMapFile(Application.StartupPath + @"\maps\level_2.map");
-					}
-				}
 
 				Portal sourcePortal = null;
 				Portal destPortal = null;
