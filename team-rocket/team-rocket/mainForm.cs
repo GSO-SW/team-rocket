@@ -53,10 +53,12 @@ namespace team_rocket
 			g = 1f;
 			bluePortal = new Portal();
 			orangePortal = new Portal();
-			#endregion
+            startGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 200)); // -50 because it's half of the SizeF's X value, so it is centered
+            quitGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 300));
+            #endregion
 
-			#region Subscribe events
-			KeyDown += OnKeyDown;
+            #region Subscribe events
+            KeyDown += OnKeyDown;
 			KeyUp += OnKeyUp;
 			MouseClick += onMouseClick;
 			#endregion
@@ -285,7 +287,18 @@ namespace team_rocket
 				}
 				#endregion
 			}
-		}
+
+            if (currentlyInMenu && startGameButton.Body.Contains(e.Location))
+            {
+                updateGraphicsTimer.Start();
+                currentlyInMenu = false;
+            }
+
+            if (currentlyInMenu && quitGameButton.Body.Contains(e.Location))
+            {
+                Close();
+            }
+        }
 
 		/// <summary>
 		/// OpenFileDialog FileOK-EventHandler. Used to load the chosen map.
@@ -648,10 +661,8 @@ namespace team_rocket
 			}
 			else
 			{
-				startGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 200)); // -50 because it's half of the SizeF's X value, so it is centered
 				startGameButton.Text = "Start Game";
 				startGameButton.Size = new SizeF(200, 40);
-				quitGameButton = new Button(new PointF(ClientSize.Width / 2 - 100, 300));
 				quitGameButton.Text = "Quit Game";
 				quitGameButton.Size = new SizeF(200, 40);
 
