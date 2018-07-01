@@ -65,15 +65,15 @@ namespace team_rocket
 			try
 			{
 				bitmapArray = new Bitmap[9];
-				bitmapArray[0] = new Bitmap(Application.StartupPath + @"\gfx\default.png");
-				bitmapArray[1] = new Bitmap(Application.StartupPath + @"\gfx\metall_foreground.png");
-				bitmapArray[2] = new Bitmap(Application.StartupPath + @"\gfx\metall_background.png");
-				bitmapArray[3] = new Bitmap(Application.StartupPath + @"\gfx\ground_1.png");
-				bitmapArray[4] = new Bitmap(Application.StartupPath + @"\gfx\dirty_water.png");
-				bitmapArray[5] = new Bitmap(Application.StartupPath + @"\gfx\door_1.png");
-				bitmapArray[6] = new Bitmap(Application.StartupPath + @"\gfx\door_2.png");
-				bitmapArray[7] = new Bitmap(Application.StartupPath + @"\gfx\door_3.png");
-				bitmapArray[8] = new Bitmap(Application.StartupPath + @"\gfx\door_4.png");
+				bitmapArray[0] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\default.png"), 32, 32);
+				bitmapArray[1] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\metall_foreground.png"), 32, 32);
+				bitmapArray[2] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\metall_background.png"), 32, 32);
+				bitmapArray[3] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\ground_1.png"), 32, 32);
+				bitmapArray[4] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\dirty_water.png"), 32, 32);
+				bitmapArray[5] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\door_1.png"), 32, 32);
+				bitmapArray[6] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\door_2.png"), 32, 32);
+				bitmapArray[7] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\door_3.png"), 32, 32);
+				bitmapArray[8] = new Bitmap(Image.FromFile(Application.StartupPath + @"\gfx\door_4.png"), 32, 32);
 
 				bluePortal.Image = new Bitmap(Application.StartupPath + @"\gfx\blue_portal.png");
 				orangePortal.Image = new Bitmap(Application.StartupPath + @"\gfx\orange_portal.png");
