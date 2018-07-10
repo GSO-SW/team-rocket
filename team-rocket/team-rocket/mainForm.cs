@@ -144,11 +144,6 @@ namespace team_rocket
 		/// <param name="e"></param>
 		private void onMouseClick(object sender, MouseEventArgs e)
 		{
-			//pos = e.Location.ToString();
-			//f(x) = m*x+b
-			//mouse.y = mouse.x
-			//player.y = player.x
-			//m = deltaY/deltaX
 			if (!currentlyInMenu)
 			{
 				float playerX = chars[0].RectF.X + chars[0].RectF.Width / 2;
@@ -299,9 +294,10 @@ namespace team_rocket
 				}
 
 			}
+
 			if (currentlyInMenu && startGameButton.Body.Contains(e.Location))
 			{
-				loadMapFile(Application.StartupPath + @"\maps\level_1.map");
+				loadMapFile(Application.StartupPath + @"\..\..\maps\level_1.map");
 				updateGraphicsTimer.Start();
 				currentlyInMenu = false;
 			}
