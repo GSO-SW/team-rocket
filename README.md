@@ -1,4 +1,8 @@
-# GDIplus
+# Portal 2D
 
-Ruckelfreie Animationen in C#:
-https://www.codeproject.com/Articles/3195/FlickerFree-Creating-flicker-free-graphics-with-GD
+Steuerung:
+A - Links bewegung
+D - Rechts bewegung
+Leertaste - Springen
+Links Klick - Blaues Portal
+Rechts Klick - Orangenes Portal
