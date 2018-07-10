@@ -27,8 +27,10 @@ namespace team_rocket
 		Portal orangePortal;
 		Timer updateGraphicsTimer;
 		Tile[] tilesArray;
-		Bitmap[] bitmapArray;
+		Bitmap[] tilesBitmapArray;
+		Bitmap[] characterBitmapArray;
 		Level loadedLevel;
+		Level defaultLevel;
 		Character[] chars;
 
 		public main()
@@ -68,16 +70,21 @@ namespace team_rocket
 			#region Loading Textures
 			try
 			{
-				bitmapArray = new Bitmap[9];
-				bitmapArray[0] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\default.png"), 32, 32);
-				bitmapArray[1] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\metall_foreground.png"), 32, 32);
-				bitmapArray[2] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\metall_background.png"), 32, 32);
-				bitmapArray[3] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\ground_1.png"), 32, 32);
-				bitmapArray[4] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\dirty_water.png"), 32, 32);
-				bitmapArray[5] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_1.png"), 32, 32);
-				bitmapArray[6] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_2.png"), 32, 32);
-				bitmapArray[7] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_3.png"), 32, 32);
-				bitmapArray[8] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_4.png"), 32, 32);
+				tilesBitmapArray = new Bitmap[9];
+				tilesBitmapArray[0] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\default.png"), 32, 32);
+				tilesBitmapArray[1] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\metall_foreground.png"), 32, 32);
+				tilesBitmapArray[2] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\metall_background.png"), 32, 32);
+				tilesBitmapArray[3] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\ground_1.png"), 32, 32);
+				tilesBitmapArray[4] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\dirty_water.png"), 32, 32);
+				tilesBitmapArray[5] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_1.png"), 32, 32);
+				tilesBitmapArray[6] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_2.png"), 32, 32);
+				tilesBitmapArray[7] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_3.png"), 32, 32);
+				tilesBitmapArray[8] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\door_4.png"), 32, 32);
+
+				characterBitmapArray = new Bitmap[3];
+				characterBitmapArray[0] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\character_0.png"), 32, 64);
+				characterBitmapArray[1] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\character_1.png"), 32, 64);
+				characterBitmapArray[2] = new Bitmap(Image.FromFile(Application.StartupPath + @"\..\..\gfx\character_2.png"), 32, 64);
 
 				bluePortal.Image = new Bitmap(Application.StartupPath + @"\..\..\gfx\blue_portal.png");
 				orangePortal.Image = new Bitmap(Application.StartupPath + @"\..\..\gfx\orange_portal.png");
@@ -101,7 +108,7 @@ namespace team_rocket
 			}
 			#endregion
 
-			#region Startup Level
+			#region Default Level
 			int[] imageIDs = new int[768];
 			for (int i = 0; i < imageIDs.Length; i++)
 			{
@@ -109,9 +116,8 @@ namespace team_rocket
 				if (i >= 704)
 					imageIDs[i] = 3;
 			}
-			loadedLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
-
-			loadLevel(loadedLevel);
+			defaultLevel = new Level(imageIDs, new Point(1024 / 2, 768 / 2), new Point(1024 - 32, 640));
+			loadedLevel = defaultLevel;
 			#endregion
 
 			#region Initialize Frame Timer
@@ -134,7 +140,7 @@ namespace team_rocket
 
 			// Spawn Character
 			chars = new Character[1];
-			chars[0] = new Character(new PointF(0, 0));
+			chars[0] = new Character(new PointF(0, 0), characterBitmapArray);
 		}
 
 		/// <summary>
@@ -342,7 +348,7 @@ namespace team_rocket
 				}
 				strR.Close();
 				loadedLevel = new Level(ImageIDs, startPoint, endPoint);
-				loadLevel(new Level(ImageIDs, startPoint, endPoint));
+				loadLevel(loadedLevel);
 			}
 			else
 				MessageBox.Show(path + " konnte nicht geladen werden.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -367,6 +373,7 @@ namespace team_rocket
 		/// <param name="lvl">The level, which should be loaded.</param>
 		private void loadLevel(Level lvl)
 		{
+			#region Set the tile hitbox
 			for (int i = 0; i < tilesArray.Length; i++)
 			{
 				tilesArray[i].ImageID = lvl.ImageIDs[i];
@@ -389,11 +396,12 @@ namespace team_rocket
 						break;
 				}
 			}
+			#endregion
+
 			if (chars != null)
 				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
 
 			resetPortals();
-
 		}
 
 		/// <summary>
@@ -655,7 +663,7 @@ namespace team_rocket
 				foreach (Tile item in tilesArray)
 				{
 					if (!item.HitboxFlag)
-						e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+						e.Graphics.DrawImage(tilesBitmapArray[item.ImageID], item.Rect.Location);
 				}
 				foreach (Character item in chars)
 				{
@@ -664,7 +672,7 @@ namespace team_rocket
 				foreach (Tile item in tilesArray)
 				{
 					if (item.HitboxFlag)
-						e.Graphics.DrawImage(bitmapArray[item.ImageID], item.Rect.Location);
+						e.Graphics.DrawImage(tilesBitmapArray[item.ImageID], item.Rect.Location);
 				}
 				e.Graphics.DrawLine(Pens.Red, new Point(Convert.ToInt32(chars[0].RectF.Location.X + chars[0].RectF.Size.Width / 2), Convert.ToInt32(chars[0].RectF.Location.Y + chars[0].RectF.Size.Height / 2)), PointToClient(MousePosition));
 				if (bluePortal.Hitbox != Rectangle.Empty)

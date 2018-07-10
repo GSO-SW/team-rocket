@@ -128,7 +128,7 @@ namespace team_rocket
         /// Provides a class, which will represent the players character.
         /// </summary>
         /// <param name="point">Sets the initial location of the character with a PointF structure.</param>
-        public Character(PointF point)
+        public Character(PointF point, Bitmap[] characterBitmaps)
         {
             rect.Location = point; //StartPos
             rect.Size = new SizeF(32, 64); //Hitbox Size
@@ -138,23 +138,20 @@ namespace team_rocket
             IsJumping = false; // The character isn't jumping at the start
             IsHeadingRight = true; // The character is facing right at the start
 
-            // Load the sprites for movement
-            sprite_right = new Bitmap[3];
-            sprite_right[0] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\..\..\gfx\character_0.png");
-            sprite_right[1] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\..\..\gfx\character_1.png");
-            sprite_right[2] = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\..\..\gfx\character_2.png");
+			// Load the sprites for movement
+			sprite_right = new Bitmap[characterBitmaps.Length];
+			for (int i = 0; i < characterBitmaps.Length; i++)
+			{
+				sprite_right[i] = new Bitmap(characterBitmaps[i]);
+			}
 
-            // Do the same here but flip the images
-            sprite_left = new Bitmap[3];
-            Bitmap mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\..\..\gfx\character_0.png");
-            mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            sprite_left[0] = mirrored;
-            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\..\..\gfx\character_1.png");
-            mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            sprite_left[1] = mirrored;
-            mirrored = new Bitmap(System.IO.Directory.GetCurrentDirectory() + @"\..\..\gfx\character_2.png");
-            mirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            sprite_left[2] = mirrored;
+			// Do the same here but flip the images
+			sprite_left = new Bitmap[characterBitmaps.Length];
+			for (int i = 0; i < characterBitmaps.Length; i++)
+			{
+				sprite_left[i] = new Bitmap(characterBitmaps[i]);
+				sprite_left[i].RotateFlip(RotateFlipType.RotateNoneFlipX);
+			}
         }
 
         /// <summary>
