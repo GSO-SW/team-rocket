@@ -125,9 +125,9 @@ namespace team_rocket
 
 			#region OpenFileDialog
 			ofd = new OpenFileDialog();
-			if (!Directory.Exists(Application.StartupPath + @"\maps\"))
-				Directory.CreateDirectory(Application.StartupPath + @"\maps\");
-			ofd.InitialDirectory = Application.StartupPath + @"\maps\";
+			if (!Directory.Exists(Application.StartupPath + @"\..\..\maps\"))
+				Directory.CreateDirectory(Application.StartupPath + @"\..\..\maps\");
+			ofd.InitialDirectory = Application.StartupPath + @"\..\..\maps\";
 			ofd.Filter = "*.map |*.map";
 			ofd.FileOk += OnFileOKofd;
 			#endregion
