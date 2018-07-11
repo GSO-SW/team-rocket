@@ -143,6 +143,86 @@ namespace team_rocket
 			chars[0] = new Character(new PointF(0, 0), characterBitmapArray);
 		}
 
+		private void loadMapFile(string path)
+		{
+			if (File.Exists(path))
+			{
+				StreamReader strR = new StreamReader(path);
+				string s = strR.ReadLine();
+				Point startPoint = new Point
+				{
+					X = Convert.ToInt32(s.Split(',')[0]),
+					Y = Convert.ToInt32(s.Split(',')[1])
+				};
+				s = strR.ReadLine();
+				Point endPoint = new Point
+				{
+					X = Convert.ToInt32(s.Split(',')[0]),
+					Y = Convert.ToInt32(s.Split(',')[1])
+				};
+				int[] ImageIDs = new int[768];
+				for (int i = 0; i < ImageIDs.Length; i++)
+				{
+					ImageIDs[i] = Convert.ToInt32(strR.ReadLine());
+				}
+				strR.Close();
+				loadedLevel = new Level(ImageIDs, startPoint, endPoint);
+				loadLevel(loadedLevel);
+			}
+			else
+				MessageBox.Show(path + " konnte nicht geladen werden.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+
+		private void resetPortals()
+		{
+			bluePortal.Alignment = -1;
+			bluePortal.Hitbox = Rectangle.Empty;
+			bluePortal.ImageRotated = false;
+			bluePortal.ImageLocation = Point.Empty;
+
+			orangePortal.Alignment = -1;
+			orangePortal.Hitbox = Rectangle.Empty;
+			orangePortal.ImageRotated = false;
+			orangePortal.ImageLocation = Point.Empty;
+		}
+
+		/// <summary>
+		/// Load the level to the game view.
+		/// </summary>
+		/// <param name="lvl">The level, which should be loaded.</param>
+		private void loadLevel(Level lvl)
+		{
+			#region Set the tile hitbox
+			for (int i = 0; i < tilesArray.Length; i++)
+			{
+				tilesArray[i].ImageID = lvl.ImageIDs[i];
+				switch (tilesArray[i].ImageID)
+				{
+					case 0:
+					case 2:
+					case 4:
+					case 5:
+					case 6:
+					case 7:
+					case 8:
+						tilesArray[i].HitboxFlag = false;
+						break;
+					case 1:
+					case 3:
+						tilesArray[i].HitboxFlag = true;
+						break;
+					default:
+						break;
+				}
+			}
+			#endregion
+
+			if (chars != null)
+				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
+
+			resetPortals();
+		}
+
 		/// <summary>
 		/// Event-Handler for Mouse Clicks. Used for the protal shooting.
 		/// </summary>
@@ -324,86 +404,6 @@ namespace team_rocket
 			loadMapFile(ofd.FileName);
 		}
 
-		private void loadMapFile(string path)
-		{
-			if (File.Exists(path))
-			{
-				StreamReader strR = new StreamReader(path);
-				string s = strR.ReadLine();
-				Point startPoint = new Point
-				{
-					X = Convert.ToInt32(s.Split(',')[0]),
-					Y = Convert.ToInt32(s.Split(',')[1])
-				};
-				s = strR.ReadLine();
-				Point endPoint = new Point
-				{
-					X = Convert.ToInt32(s.Split(',')[0]),
-					Y = Convert.ToInt32(s.Split(',')[1])
-				};
-				int[] ImageIDs = new int[768];
-				for (int i = 0; i < ImageIDs.Length; i++)
-				{
-					ImageIDs[i] = Convert.ToInt32(strR.ReadLine());
-				}
-				strR.Close();
-				loadedLevel = new Level(ImageIDs, startPoint, endPoint);
-				loadLevel(loadedLevel);
-			}
-			else
-				MessageBox.Show(path + " konnte nicht geladen werden.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-		}
-
-		private void resetPortals()
-		{
-			bluePortal.Alignment = -1;
-			bluePortal.Hitbox = Rectangle.Empty;
-			bluePortal.ImageRotated = false;
-			bluePortal.ImageLocation = Point.Empty;
-
-			orangePortal.Alignment = -1;
-			orangePortal.Hitbox = Rectangle.Empty;
-			orangePortal.ImageRotated = false;
-			orangePortal.ImageLocation = Point.Empty;
-		}
-
-		/// <summary>
-		/// Load the level to the game view.
-		/// </summary>
-		/// <param name="lvl">The level, which should be loaded.</param>
-		private void loadLevel(Level lvl)
-		{
-			#region Set the tile hitbox
-			for (int i = 0; i < tilesArray.Length; i++)
-			{
-				tilesArray[i].ImageID = lvl.ImageIDs[i];
-				switch (tilesArray[i].ImageID)
-				{
-					case 0:
-					case 2:
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 8:
-						tilesArray[i].HitboxFlag = false;
-						break;
-					case 1:
-					case 3:
-						tilesArray[i].HitboxFlag = true;
-						break;
-					default:
-						break;
-				}
-			}
-			#endregion
-
-			if (chars != null)
-				chars[0].RectF = new RectangleF(lvl.StartPoint, chars[0].RectF.Size);
-
-			resetPortals();
-		}
-
 		/// <summary>
 		/// Event-Handler for the Graphic-Update-Timer-Tick
 		/// </summary>
@@ -415,6 +415,7 @@ namespace team_rocket
 			{
 				RectangleF character = chars[j].RectF;
 				SizeF velocity = chars[j].Velocity;
+				verticalVelocityLastTick = velocity.Height;
 				if (velocity.Height < 30) //the player shouldn't fall faster than 30 px/tick, it can cause miss calculation
 					velocity.Height += g;
 
@@ -629,7 +630,6 @@ namespace team_rocket
 				}
 				character.Location += velocity;
 				chars[j].Velocity = velocity;
-				verticalVelocityLastTick = velocity.Height;
 				chars[j].RectF = character;
 			}
 
